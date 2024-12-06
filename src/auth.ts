@@ -15,12 +15,6 @@ export const handler = NextAuth({
   session: {
     strategy: "database" as const, // Usa "database" se vuoi salvare la sessione nel DB
   },
-  callbacks: {
-    async session({ session, token }: { session: any; token: any }) {
-      session.user.id = token.sub; // Associa l'ID utente al token
-      return session;
-    },
-  },
   debug: true,
   logger: {
     error(code, metadata) {
