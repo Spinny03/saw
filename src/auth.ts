@@ -1,7 +1,7 @@
-import NextAuth from "next-auth";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { prisma } from "@/prisma";
-import GoogleProvider from "next-auth/providers/google";
+import NextAuth from 'next-auth';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import { prisma } from '@/prisma';
+import GoogleProvider from 'next-auth/providers/google';
 
 export const handler = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -13,7 +13,7 @@ export const handler = NextAuth({
   ],
   secret: process.env.NEXTAUTH_SECRET,
   session: {
-    strategy: "database" as const, // Usa "database" se vuoi salvare la sessione nel DB
+    strategy: 'database' as const, // Usa "database" se vuoi salvare la sessione nel DB
   },
   debug: true,
   logger: {
@@ -29,13 +29,13 @@ export const handler = NextAuth({
   },
   events: {
     async signIn(message) {
-      console.log("Sign In", message);
+      console.log('Sign In', message);
     },
     async signOut(message) {
-      console.log("Sign Out", message);
+      console.log('Sign Out', message);
     },
     async createUser(message) {
-      console.log("User Created", message);
+      console.log('User Created', message);
     },
   },
 });

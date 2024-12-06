@@ -1,20 +1,20 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client';
 
-export async function POST(request: Request) {
+export async function POST() {
   const prisma = new PrismaClient();
 
   async function main() {
     // Crea un nuovo utente
     const user = await prisma.user.findUnique({
       where: {
-        id: "12",
+        id: '12',
       },
     });
-    console.log("Utente creato:", user);
+    console.log('Utente creato:', user);
 
     // Recupera tutti gli utenti
     const users = await prisma.user.findMany();
-    console.log("Tutti gli utenti:", users);
+    console.log('Tutti gli utenti:', users);
   }
 
   main()
@@ -26,5 +26,5 @@ export async function POST(request: Request) {
       await prisma.$disconnect();
     });
 
-  return new Response("Utente creato", { status: 200 });
+  return new Response('Utente creato', { status: 200 });
 }

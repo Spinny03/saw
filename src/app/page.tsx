@@ -1,7 +1,7 @@
 // app/page.tsx
-"use client";
-import { signIn, signOut } from "next-auth/react";
-import { useSession } from "next-auth/react";
+'use client';
+import { signIn, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 
 export default function HomePage() {
   const { data: session } = useSession();
