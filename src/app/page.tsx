@@ -2,23 +2,26 @@
 'use client';
 import { signIn, signOut } from 'next-auth/react';
 import { useSession } from 'next-auth/react';
+import { Flex, Text, Button } from '@radix-ui/themes';
 
 export default function HomePage() {
   const { data: session } = useSession();
   if (session) {
     return (
-      <div>
-        <h1>Benvenuto nella mia applicazione!</h1>
-        <p>Logged in as {session.user?.name}</p>
-        <button onClick={() => signOut()}>Logout</button>
+      <div className="min-h-screen">
+        <Flex>
+          <Text>Benvenuto nella mia applicazione!</Text>
+          <p>Logged in as {session.user?.name}</p>
+          <Button onClick={() => signOut()}>Logout</Button>
+        </Flex>
       </div>
     );
   }
   return (
-    <div>
-      <h1>Benvenuto nella mia applicazione!</h1>
+    <Flex>
+      <Text>Benvenuto nella mia applicazione!</Text>
       <p>Non sei autenticato</p>
-      <button onClick={() => signIn()}>Login</button>
-    </div>
+      <Button onClick={() => signIn()}>Login</Button>
+    </Flex>
   );
 }
