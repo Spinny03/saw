@@ -7,7 +7,7 @@ export async function POST(request: Request) {
     // Crea un nuovo utente
     const user = await prisma.user.findUnique({
       where: {
-        id: 12,
+        id: "12",
       },
     });
     console.log("Utente creato:", user);
