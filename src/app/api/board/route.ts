@@ -1,7 +1,7 @@
 import { prisma } from '@/prisma';
 import { authOptions } from '@/auth.config';
 import { getServerSession } from 'next-auth';
-import { User, Board } from '@prisma/client';
+import { Board } from '@prisma/client';
 import { getUserEmail } from '@/libs/userClient';
 
 export async function GET() {
@@ -9,21 +9,18 @@ export async function GET() {
   if (!session?.user) {
     return new Response('Unauthorized', { status: 401 });
   }
-  const user: User | null = await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: {
       email: session.user.email ?? undefined,
+    },
+    include: {
+      boards: true,
     },
   });
   if (!user) {
     return new Response('Unauthorized', { status: 401 });
   }
-  const boards: Board[] = await prisma.board.findMany({
-    where: {
-      ownerId: user.id,
-    },
-  });
-
-  return new Response(JSON.stringify(boards), {
+  return new Response(JSON.stringify(user.boards), {
     status: 200,
     headers: {
       'Content-Type': 'application/json',
@@ -32,19 +29,33 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const user: User | null = await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: {
       email: await getUserEmail(),
+    },
+    include: {
+      boards: true,
     },
   });
   if (!user) {
     return new Response('Unauthorized', { status: 401 });
   }
-
   let board: Board = await request.json();
-
-  board.ownerId = user.id;
-  await prisma.board.create({ data: board });
+  await prisma.board.create({
+    data: {
+      title: board.title,
+      owner: {
+        connect: {
+          id: user.id,
+        },
+      },
+      users: {
+        connect: {
+          id: user.id,
+        },
+      },
+    },
+  });
 
   return new Response(JSON.stringify(board), {
     status: 200,
