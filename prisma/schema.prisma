@@ -8,19 +8,19 @@ datasource db {
 }
 
 model User {
-  id            String          @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String?
-  email         String          @unique
+  email         String    @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  boards      Board[]  @relation("UserBoards")
-  ownedBoards Board[]  @relation("BoardOwner")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  boards        Board[]   @relation("UserBoards")
+  ownedBoards   Board[]   @relation("BoardOwner")
 }
- 
+
 model Account {
   userId            String
   type              String
@@ -33,54 +33,54 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
- 
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
- 
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   @@id([provider, providerAccountId])
 }
- 
+
 model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
- 
+
 model VerificationToken {
   identifier String
   token      String
   expires    DateTime
- 
+
   @@id([identifier, token])
 }
- 
+
 model Board {
-  id        Int      @id @default(autoincrement())
-  title     String
-  owner     User     @relation(fields: [ownerId], references: [id], name: "BoardOwner")
-  ownerId   String
-  users     User[]   @relation("UserBoards")
-  columns   Column[]
+  id      Int      @id @default(autoincrement())
+  title   String
+  owner   User     @relation(fields: [ownerId], references: [id], name: "BoardOwner")
+  ownerId String
+  users   User[]   @relation("UserBoards")
+  columns Column[]
 }
 
 model Column {
-  id        Int      @id @default(autoincrement())
-  title     String
-  board     Board    @relation(fields: [boardId], references: [id])
-  boardId   Int
-  cards     Card[]
+  id      Int    @id @default(autoincrement())
+  title   String
+  board   Board  @relation(fields: [boardId], references: [id])
+  boardId Int
+  cards   Card[]
 }
 
 model Card {
-  id        Int      @id @default(autoincrement())
-  title     String
-  column    Column   @relation(fields: [columnId], references: [id])
-  columnId  Int
-  status    String
+  id       Int    @id @default(autoincrement())
+  title    String
+  column   Column @relation(fields: [columnId], references: [id])
+  columnId Int
+  status   String
 }
