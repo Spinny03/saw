@@ -39,3 +39,5 @@ export const handler = NextAuth({
     },
   },
 });
+
+export const { auth } = handler;
