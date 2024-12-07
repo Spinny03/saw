@@ -1,7 +1,13 @@
 import GoogleProvider from 'next-auth/providers/google';
-import type { NextAuthConfig } from 'next-auth';
+import { PrismaAdapter } from '@auth/prisma-adapter';
+import { prisma } from '@/prisma';
+import type { AuthOptions } from 'next-auth';
 
-export default {
+export const authOptions: AuthOptions = {
+  adapter: PrismaAdapter(prisma),
+  session: {
+    strategy: 'database' as const, // Usa "database" se vuoi salvare la sessione nel DB
+  },
   providers: [
     GoogleProvider({
       clientId: process.env.AUTH_GOOGLE_ID!,
@@ -18,13 +24,6 @@ export default {
       console.debug(code, metadata);
     },
   },
-  callbacks: {
-    authorized: async ({ auth }) => {
-      // Logged in users are authenticated, otherwise redirect to login page
-      console.log('Authorized', auth);
-      return !!auth;
-    },
-  },
   events: {
     async signIn(message) {
       console.log('Sign In', message);
@@ -36,4 +35,4 @@ export default {
       console.log('User Created', message);
     },
   },
-} satisfies NextAuthConfig;
+};
