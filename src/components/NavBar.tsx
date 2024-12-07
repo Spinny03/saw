@@ -5,8 +5,8 @@ import * as Toolbar from '@radix-ui/react-toolbar';
 import * as Avatar from '@radix-ui/react-avatar';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import * as Dialog from '@radix-ui/react-dialog';
+import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
 
 const Navbar: React.FC = () => {
   const router = useRouter();
