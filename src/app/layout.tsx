@@ -1,4 +1,5 @@
 //layout.tsx
+import './globals.css';
 import { Inter } from 'next/font/google';
 import { ReactNode } from 'react';
 import SessionProvider from './SessionProvider';
