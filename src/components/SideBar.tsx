@@ -68,24 +68,22 @@ export default function SideBar({ onBlockSelect }: SideBarProps) {
           className="flex flex-col gap-4"
           onValueChange={handleValueChange}
         >
-          {blocks.length > 0 ? (
-            blocks.map((block: Board) => (
-              <Item
-                key={block.id}
-                value={block.id.toString()}
-                aria-label={`Block ${block.id}`}
-                className={`flex h-12 w-12 cursor-pointer items-center justify-center rounded-md hover:bg-blue-700 active:ring-2 active:ring-gray-500 active:ring-offset-2 ${
-                  selectedBlock === block.id.toString()
-                    ? 'bg-blue-700 text-white'
-                    : 'bg-gray-700 text-white'
-                }`}
-              >
-                {block.id}
-              </Item>
-            ))
-          ) : (
-            <p>No blocks available</p>
-          )}
+          {blocks.length > 0
+            ? blocks.map((block: Board) => (
+                <Item
+                  key={block.id}
+                  value={block.id.toString()}
+                  aria-label={`Block ${block.id}`}
+                  className={`flex h-12 w-12 cursor-pointer items-center justify-center rounded-md hover:bg-blue-700 active:ring-2 active:ring-gray-500 active:ring-offset-2 ${
+                    selectedBlock === block.id.toString()
+                      ? 'bg-blue-700 text-white'
+                      : 'bg-gray-700 text-white'
+                  }`}
+                >
+                  {block.id}
+                </Item>
+              ))
+            : null}
         </Root>
       </div>
     </div>
