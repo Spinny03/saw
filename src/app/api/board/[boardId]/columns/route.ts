@@ -1,21 +1,23 @@
 import { prisma } from '@/prisma';
 import { authOptions } from '@/auth.config';
 import { getServerSession } from 'next-auth';
+import { NextRequest } from 'next/server';
 
 export async function GET(
-  request: Request,
-  context: { params: { boardId: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ boardId: string }> }
 ) {
-  const params = await context.params;
+  const { boardId } = await params;
+
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  const boardId = params.boardId;
+  const boardIdParsed = parseInt(boardId, 10);
   const columns = await prisma.column.findMany({
     where: {
-      boardId: parseInt(boardId),
+      boardId: boardIdParsed,
     },
   });
 
@@ -28,22 +30,23 @@ export async function GET(
 }
 
 export async function POST(
-  request: Request,
-  context: { params: { boardId: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ boardId: string }> }
 ) {
-  const params = await context.params;
+  const { boardId } = await params;
+
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  const boardId = params.boardId;
+  const boardIdParsed = parseInt(boardId, 10);
   const { title } = await request.json();
 
   const newColumn = await prisma.column.create({
     data: {
       title,
-      boardId: parseInt(boardId),
+      boardId: boardIdParsed,
     },
   });
 

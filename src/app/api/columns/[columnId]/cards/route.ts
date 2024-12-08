@@ -4,9 +4,9 @@ import { getServerSession } from 'next-auth';
 
 export async function GET(
   request: Request,
-  context: { params: { columnId: string } }
+  { params }: { params: Promise<{ columnId: string }> }
 ) {
-  const { columnId } = await context.params;
+  const { columnId } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return new Response('Unauthorized', { status: 401 });
@@ -28,9 +28,9 @@ export async function GET(
 
 export async function POST(
   request: Request,
-  context: { params: { columnId: string } }
+  { params }: { params: Promise<{ columnId: string }> }
 ) {
-  const { columnId } = await context.params;
+  const { columnId } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return new Response('Unauthorized', { status: 401 });
