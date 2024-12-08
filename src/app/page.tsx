@@ -18,28 +18,9 @@ export default function HomePage() {
       <div className="flex min-h-screen">
         <SideBar onBlockSelect={handleBlockSelect} />
         <div className="flex-1">
-          <Flex>
-            <Text>Benvenuto nella mia applicazione!</Text>
-            <p>Logged in as {session.user?.name}</p>
-            <p>Selected Board: {selectedBoard}</p>
-            <Button onClick={() => signOut()}>Logout</Button>
-          </Flex>
+          <h1>Selezionato: {selectedBoard}</h1>
         </div>
       </div>
     );
   }
-
-  return (
-    <div className="flex min-h-screen">
-      <SideBar onBlockSelect={handleBlockSelect} />
-      <div className="flex-1">
-        <Flex>
-          <Text>Benvenuto nella mia applicazione!</Text>
-          <p>Non sei autenticato</p>
-          <p>Selected Board: {selectedBoard}</p>
-          <Button onClick={() => signIn()}>Login</Button>
-        </Flex>
-      </div>
-    </div>
-  );
 }

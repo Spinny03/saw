@@ -44,31 +44,40 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Profile Icon with Dropdown Menu */}
-      <DropdownMenu.Root>
-        <DropdownMenu.Trigger asChild>
-          <Avatar.Root className="h-10 w-10 cursor-pointer rounded-full">
-            <Avatar.Fallback className="flex h-full w-full items-center justify-center bg-gray-700 font-medium text-white">
-              {session?.user?.name?.charAt(0).toUpperCase() || 'P'}
-            </Avatar.Fallback>
-          </Avatar.Root>
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content className="rounded-md bg-black p-2 shadow-lg">
-          <DropdownMenu.Item
-            className="cursor-pointer px-4 py-2 hover:bg-gray-200"
-            onClick={() => router.push('/profile')}
-          >
-            Profile
-          </DropdownMenu.Item>
-          <DropdownMenu.Item
-            className="cursor-pointer px-4 py-2 hover:bg-gray-200"
-            onClick={() => signOut()}
-          >
-            Logout
-          </DropdownMenu.Item>
-        </DropdownMenu.Content>
-      </DropdownMenu.Root>
-
+      {session ? (
+        /* Profile Icon with Dropdown Menu */
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger asChild>
+            <Avatar.Root className="h-10 w-10 cursor-pointer rounded-full">
+              <Avatar.Fallback className="flex h-full w-full items-center justify-center bg-gray-700 font-medium text-white">
+                {session?.user?.name?.charAt(0).toUpperCase() || 'P'}
+              </Avatar.Fallback>
+            </Avatar.Root>
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content className="rounded-md bg-black p-2 shadow-lg">
+            <DropdownMenu.Item
+              className="cursor-pointer px-4 py-2 hover:bg-gray-200"
+              onClick={() => router.push('/profile')}
+            >
+              Profile
+            </DropdownMenu.Item>
+            <DropdownMenu.Item
+              className="cursor-pointer px-4 py-2 hover:bg-gray-200"
+              onClick={() => signOut()}
+            >
+              Logout
+            </DropdownMenu.Item>
+          </DropdownMenu.Content>
+        </DropdownMenu.Root>
+      ) : (
+        /* Login Button */
+        <button
+          className="rounded-md bg-blue-500 px-4 py-2 text-white"
+          onClick={() => router.push('/api/auth/signin')}
+        >
+          Login
+        </button>
+      )}
       {/* Search Modal */}
       <Dialog.Root open={isSearchModalOpen} onOpenChange={setIsSearchModalOpen}>
         <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50" />
