@@ -4,17 +4,18 @@ import { Root, Item } from '@radix-ui/react-toggle-group';
 import { Board } from '@prisma/client';
 
 interface SideBarProps {
-  boardCreated: boolean;
-  setBoardCreated: (created: boolean) => void;
+  onBlockSelect: (blockId: string) => void;
 }
 
-export default function SideBar() {
+export default function SideBar({ onBlockSelect }: SideBarProps) {
   const [selectedBlock, setSelectedBlock] = useState('1');
   const [blocks, setBlocks] = useState<Board[]>([]);
   const [boardName, setBoardName] = useState('');
 
   const handleValueChange = (value: string) => {
+    if (!value) return;
     setSelectedBlock(value);
+    onBlockSelect(value);
   };
 
   const createBoard = async () => {
@@ -50,11 +51,11 @@ export default function SideBar() {
   }, []); // Ricarica le board quando boardCreated cambia
 
   return (
-    <div className="w-20 h-screen bg-gray-100 flex flex-col items-center p-4 overflow-y-auto">
+    <div className="flex h-screen w-20 flex-col items-center overflow-y-auto bg-gray-100 p-4">
       <div className="w-full pb-4">
         <button
           onClick={createBoard}
-          className="w-12 mt-2 p-3 bg-blue-500 text-white rounded-md"
+          className="mt-2 w-12 rounded-md bg-blue-500 p-3 text-white"
         >
           +
         </button>
@@ -73,7 +74,7 @@ export default function SideBar() {
                 key={block.id}
                 value={block.id.toString()}
                 aria-label={`Block ${block.id}`}
-                className={`w-12 h-12 flex items-center justify-center rounded-md cursor-pointer hover:bg-blue-700 active:ring-2 active:ring-offset-2 active:ring-gray-500 ${
+                className={`flex h-12 w-12 cursor-pointer items-center justify-center rounded-md hover:bg-blue-700 active:ring-2 active:ring-gray-500 active:ring-offset-2 ${
                   selectedBlock === block.id.toString()
                     ? 'bg-blue-700 text-white'
                     : 'bg-gray-700 text-white'

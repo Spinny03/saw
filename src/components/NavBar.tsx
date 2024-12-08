@@ -18,7 +18,7 @@ const Navbar: React.FC = () => {
   const closeSearchModal = () => setIsSearchModalOpen(false);
 
   return (
-    <Toolbar.Root className="flex items-center justify-between px-6 py-4 bg-gray-800 text-white">
+    <Toolbar.Root className="flex items-center justify-between bg-gray-800 px-6 py-4 text-white">
       {/* Logo */}
       <Toolbar.Button
         className="text-lg font-bold focus:outline-none"
@@ -28,17 +28,17 @@ const Navbar: React.FC = () => {
       </Toolbar.Button>
 
       {/* Search Bar or Icon */}
-      <div className="flex-1 mx-4">
+      <div className="mx-4 flex-1">
         <div className="hidden sm:block">
           <input
             type="text"
             placeholder="Cerca..."
-            className="w-full px-4 py-2 bg-gray-700 text-white rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+            className="w-full rounded-md bg-gray-700 px-4 py-2 text-white focus:outline-none focus:ring focus:ring-blue-500"
           />
         </div>
         <div className="block sm:hidden">
           <MagnifyingGlassIcon
-            className="w-6 h-6 cursor-pointer"
+            className="h-6 w-6 cursor-pointer"
             onClick={openSearchModal}
           />
         </div>
@@ -47,21 +47,21 @@ const Navbar: React.FC = () => {
       {/* Profile Icon with Dropdown Menu */}
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
-          <Avatar.Root className="w-10 h-10 rounded-full cursor-pointer">
-            <Avatar.Fallback className="w-full h-full flex items-center justify-center bg-gray-700 text-white font-medium">
+          <Avatar.Root className="h-10 w-10 cursor-pointer rounded-full">
+            <Avatar.Fallback className="flex h-full w-full items-center justify-center bg-gray-700 font-medium text-white">
               {session?.user?.name?.charAt(0).toUpperCase() || 'P'}
             </Avatar.Fallback>
           </Avatar.Root>
         </DropdownMenu.Trigger>
-        <DropdownMenu.Content className="bg-black rounded-md shadow-lg p-2">
+        <DropdownMenu.Content className="rounded-md bg-black p-2 shadow-lg">
           <DropdownMenu.Item
-            className="px-4 py-2 cursor-pointer hover:bg-gray-200"
+            className="cursor-pointer px-4 py-2 hover:bg-gray-200"
             onClick={() => router.push('/profile')}
           >
             Profile
           </DropdownMenu.Item>
           <DropdownMenu.Item
-            className="px-4 py-2 cursor-pointer hover:bg-gray-200"
+            className="cursor-pointer px-4 py-2 hover:bg-gray-200"
             onClick={() => signOut()}
           >
             Logout
@@ -73,15 +73,15 @@ const Navbar: React.FC = () => {
       <Dialog.Root open={isSearchModalOpen} onOpenChange={setIsSearchModalOpen}>
         <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50" />
         <Dialog.Content className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-md p-6 bg-black rounded-md">
+          <div className="w-full max-w-md rounded-md bg-black p-6">
             <Dialog.Title className="text-lg font-bold">Cerca</Dialog.Title>
             <input
               type="text"
               placeholder="Cerca..."
-              className="w-full mt-4 px-4 py-2 bg-gray-200 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+              className="mt-4 w-full rounded-md bg-gray-200 px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500"
             />
             <button
-              className="mt-4 px-4 py-2 bg-blue-500 text-black rounded-md"
+              className="mt-4 rounded-md bg-blue-500 px-4 py-2 text-black"
               onClick={closeSearchModal}
             >
               Chiudi

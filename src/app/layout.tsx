@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             radius="large"
             scaling="100%"
           >
-            <div className="min-h-screen flex flex-col">
+            <div className="flex min-h-screen flex-col">
               <NavBar />
               <main className="flex-grow">{children}</main>
               <Footer />
