@@ -54,10 +54,13 @@ export default function HomePage() {
             {columns.map((column) => (
               <Column key={column.id} id={column.id} title={column.title} />
             ))}
-            <Button onClick={addColumn}>Aggiungi Colonna</Button>
+            {selectedBoard && (
+              <Button onClick={addColumn}>Aggiungi Colonna</Button>
+            )}
           </div>
         </div>
       </div>
     );
   }
+  // ...existing code...
 }

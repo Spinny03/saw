@@ -49,9 +49,11 @@ const Navbar: React.FC = () => {
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
             <Avatar.Root className="h-10 w-10 cursor-pointer rounded-full">
-              <Avatar.Fallback className="flex h-full w-full items-center justify-center bg-gray-700 font-medium text-white">
-                {session?.user?.name?.charAt(0).toUpperCase() || 'P'}
-              </Avatar.Fallback>
+              <Avatar.Image
+                src={session?.user?.image || '/vercel.svg'}
+                alt={session?.user?.name || 'Profile'}
+                className="h-full w-full rounded-full"
+              />
             </Avatar.Root>
           </DropdownMenu.Trigger>
           <DropdownMenu.Content className="rounded-md bg-black p-2 shadow-lg">

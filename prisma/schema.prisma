@@ -78,9 +78,8 @@ model Column {
 }
 
 model Card {
-  id       Int    @id @default(autoincrement())
-  title    String
-  column   Column @relation(fields: [columnId], references: [id])
-  columnId Int
-  status   String
+  id        Int     @id @default(autoincrement())
+  title     String
+  columnId  Int
+  Column    Column  @relation(fields: [columnId], references: [id])
 }
