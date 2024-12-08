@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     return new Response('Unauthorized', { status: 401 });
   }
   let board: Board = await request.json();
-  await prisma.board.create({
+  board = await prisma.board.create({
     data: {
       title: board.title,
       owner: {
