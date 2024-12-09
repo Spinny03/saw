@@ -55,12 +55,7 @@ export const authOptions: AuthOptions = {
       }
 
       const extension = path.extname(imageUrl);
-      const filePath = path.join(
-        process.cwd(),
-        'public',
-        'profile',
-        `${userId}${extension}`
-      );
+      const filePath = path.join('profile', `${userId}${extension}`);
 
       const downloadImage = async (imgUrl: string, filePath: string) => {
         const response = await fetch(imgUrl);
@@ -72,9 +67,13 @@ export const authOptions: AuthOptions = {
         });
         return url;
       };
-
-      let url = await downloadImage(imageUrl, filePath);
-
+      let url;
+      try {
+        url = await downloadImage(imageUrl, filePath);
+      } catch (error) {
+        console.error('Error downloading image:', error);
+      }
+      console.log('URL:', url);
       await prisma.user.update({
         where: { id: userId },
         data: { image: url },
