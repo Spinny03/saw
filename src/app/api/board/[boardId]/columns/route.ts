@@ -19,6 +19,9 @@ export async function GET(
     where: {
       boardId: boardIdParsed,
     },
+    include: {
+      cards: true,
+    },
   });
 
   return new Response(JSON.stringify(columns), {

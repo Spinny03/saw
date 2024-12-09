@@ -70,16 +70,16 @@ model Board {
 }
 
 model Column {
-  id      Int    @id @default(autoincrement())
-  title   String
-  board   Board  @relation(fields: [boardId], references: [id])
-  boardId Int
-  cards   Card[]
+  id       Int    @id @default(autoincrement())
+  title    String
+  board    Board  @relation(fields: [boardId], references: [id])
+  boardId  Int
+  cards    Card[]
 }
 
 model Card {
   id        Int     @id @default(autoincrement())
   title     String
   columnId  Int
-  Column    Column  @relation(fields: [columnId], references: [id])
+  column    Column  @relation(fields: [columnId], references: [id])
 }

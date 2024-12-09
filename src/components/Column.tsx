@@ -1,32 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Card from './Card';
 
 interface ColumnProps {
-  readonly id: number;
-  readonly title: string;
+  readonly column: any;
 }
 
-interface CardType {
-  id: number;
-  title: string;
-}
-
-export default function Column({ id, title }: ColumnProps) {
-  const [cards, setCards] = useState<CardType[]>([]);
-
-  useEffect(() => {
-    // Fetch cards for this column
-    fetch(`/api/columns/${id}/cards`)
-      .then((response) => response.json())
-      .then((data) => setCards(data || []))
-      .catch((error) => console.error('Error fetching cards:', error));
-  }, [id]);
-
+export default function Column({ column }: ColumnProps) {
   const addCard = async () => {
     try {
-      const response = await fetch(`/api/columns/${id}/cards`, {
+      const response = await fetch(`/api/columns/${column.id}/cards`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -35,7 +18,7 @@ export default function Column({ id, title }: ColumnProps) {
       });
       if (response.ok) {
         const newCard = await response.json();
-        setCards([...cards, newCard]);
+        column.cards.push(newCard);
       } else {
         console.error('Error adding card');
       }
@@ -45,12 +28,10 @@ export default function Column({ id, title }: ColumnProps) {
   };
 
   return (
-    <div key={id} className="rounded-md bg-gray-200 p-4">
-      <h2 className="text-lg font-bold">{title}</h2>
+    <div key={column.id} className="rounded-md bg-gray-200 p-4">
+      <h2 className="text-lg font-bold">{column.title}</h2>
       <div className="mt-2">
-        {cards.map((card) => (
-          <Card key={card.id} id={card.id} title={card.title} />
-        ))}
+        {column.cards?.map((card: any) => <Card key={card.id} card={card} />)}
         <button
           onClick={addCard}
           className="mt-2 rounded bg-blue-500 p-2 text-white"
