@@ -1,12 +1,15 @@
 'use client';
 
 import Card from './Card';
+import { useState } from 'react';
 
 interface ColumnProps {
-  readonly column: any;
+  readonly columnProp: any;
 }
 
-export default function Column({ column }: ColumnProps) {
+export default function Column({ columnProp }: ColumnProps) {
+  const [column, setColumn] = useState<any>(columnProp);
+
   const addCard = async () => {
     try {
       const response = await fetch(`/api/columns/${column.id}/cards`, {
@@ -19,6 +22,7 @@ export default function Column({ column }: ColumnProps) {
       if (response.ok) {
         const newCard = await response.json();
         column.cards.push(newCard);
+        setColumn({ ...column });
       } else {
         console.error('Error adding card');
       }

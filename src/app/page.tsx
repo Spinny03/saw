@@ -3,7 +3,7 @@
 import { signIn, signOut, useSession } from 'next-auth/react';
 import { Flex, Text, Button } from '@radix-ui/themes';
 import SideBar from '../components/SideBar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Column from '../components/Column';
 
 export default function HomePage() {
@@ -22,6 +22,20 @@ export default function HomePage() {
     }
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`/api/board/${selectedBoard}`);
+        const data = await response.json();
+        setBoard(data || []);
+      } catch (error) {
+        console.error('Error fetching columns:', error);
+      }
+    };
+
+    fetchData();
+  }, [selectedBoard]);
+
   const addColumn = async () => {
     if (!selectedBoard) return;
     try {
@@ -35,6 +49,7 @@ export default function HomePage() {
       if (response.ok) {
         const newColumn = await response.json();
         board.columns.push(newColumn);
+        setBoard({ ...board });
       } else {
         console.error('Error adding column');
       }
@@ -51,7 +66,7 @@ export default function HomePage() {
           <h1>Selezionato: {selectedBoard}</h1>
           <div className="flex flex-row gap-4">
             {board.columns?.map((column: any) => (
-              <Column key={column.id} column={column} />
+              <Column key={column.id} columnProp={column} />
             ))}
             {selectedBoard && (
               <Button onClick={addColumn}>Aggiungi Colonna</Button>
