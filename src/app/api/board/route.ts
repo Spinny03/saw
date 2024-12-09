@@ -2,7 +2,7 @@ import { prisma } from '@/prisma';
 import { authOptions } from '@/auth.config';
 import { getServerSession } from 'next-auth';
 import { Board } from '@prisma/client';
-import { getUserEmail } from '@/libs/userClient';
+import { getUserId } from '@/libs/userClient';
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -29,29 +29,19 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const user = await prisma.user.findUnique({
-    where: {
-      email: await getUserEmail(),
-    },
-    include: {
-      boards: true,
-    },
-  });
-  if (!user) {
-    return new Response('Unauthorized', { status: 401 });
-  }
+  let userId = await getUserId();
   let board: Board = await request.json();
   board = await prisma.board.create({
     data: {
       title: board.title,
       owner: {
         connect: {
-          id: user.id,
+          id: userId,
         },
       },
       users: {
         connect: {
-          id: user.id,
+          id: userId,
         },
       },
     },

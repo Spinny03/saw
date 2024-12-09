@@ -69,7 +69,14 @@ export default function HomePage() {
               <Column key={column.id} columnProp={column} />
             ))}
             {selectedBoard && (
-              <Button onClick={addColumn}>Aggiungi Colonna</Button>
+              <div className="w-full pb-4">
+                <button
+                  onClick={addColumn}
+                  className="mt-2 w-12 rounded-md bg-blue-500 p-3 text-white"
+                >
+                  +
+                </button>
+              </div>
             )}
           </div>
         </div>

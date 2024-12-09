@@ -1,7 +1,6 @@
 import { prisma } from '@/prisma';
-import { authOptions } from '@/auth.config';
-import { getServerSession } from 'next-auth';
 import { NextRequest } from 'next/server';
+import { getUserId } from '@/libs/userClient';
 
 export async function GET(
   request: NextRequest,
@@ -9,8 +8,8 @@ export async function GET(
 ) {
   const { boardId } = await params;
 
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
+  const userId = await getUserId();
+  if (!userId) {
     return new Response('Unauthorized', { status: 401 });
   }
 
@@ -28,6 +27,10 @@ export async function GET(
       users: true,
     },
   });
+
+  if (!board || !board.users.find((user) => user.id === userId)) {
+    return new Response('Board not found', { status: 404 });
+  }
 
   return new Response(JSON.stringify(board), {
     status: 200,

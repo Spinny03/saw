@@ -1,14 +1,13 @@
+import { getUserId } from '@/libs/userClient';
 import { prisma } from '@/prisma';
-import { authOptions } from '@/auth.config';
-import { getServerSession } from 'next-auth';
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ boardId: string }> }
 ) {
   const { boardId } = await params;
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
+  const userId = await getUserId();
+  if (!userId) {
     return new Response('Unauthorized', { status: 401 });
   }
 
@@ -31,8 +30,9 @@ export async function POST(
   { params }: { params: Promise<{ boardId: string }> }
 ) {
   const { boardId } = await params;
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
+
+  const userId = await getUserId();
+  if (!userId) {
     return new Response('Unauthorized', { status: 401 });
   }
 
