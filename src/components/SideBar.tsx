@@ -4,7 +4,7 @@ import { Root, Item } from '@radix-ui/react-toggle-group';
 import { Board } from '@prisma/client';
 
 interface SideBarProps {
-  onBlockSelect: (blockId: string) => void;
+  readonly onBlockSelect: (blockId: string) => void;
 }
 
 export default function SideBar({ onBlockSelect }: SideBarProps) {

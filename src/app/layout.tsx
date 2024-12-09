@@ -5,7 +5,7 @@ import { ReactNode } from 'react';
 import SessionProvider from './SessionProvider';
 import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
-import { Theme, ThemePanel } from '@radix-ui/themes';
+import { Theme } from '@radix-ui/themes';
 const inter = Inter({ subsets: ['latin'] });
 
 export default function RootLayout({ children }: { children: ReactNode }) {
