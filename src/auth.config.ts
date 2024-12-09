@@ -2,6 +2,8 @@ import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '@/prisma';
 import type { AuthOptions, DefaultSession } from 'next-auth';
+import { put } from '@vercel/blob';
+
 const fs = require('fs');
 const path = require('path');
 declare module 'next-auth' {
@@ -60,20 +62,22 @@ export const authOptions: AuthOptions = {
         `${userId}${extension}`
       );
 
-      const downloadImage = async (url: string, filePath: string) => {
-        const response = await fetch(url);
+      const downloadImage = async (imgUrl: string, filePath: string) => {
+        const response = await fetch(imgUrl);
         const arrayBuffer = await response.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
-        fs.writeFileSync(filePath, buffer);
+
+        const { url } = await put(filePath, buffer, {
+          access: 'public',
+        });
+        return url;
       };
 
-      downloadImage(imageUrl, filePath)
-        .then(() => console.log('Image saved successfully'))
-        .catch((err) => console.error('Error saving image', err));
+      let url = await downloadImage(imageUrl, filePath);
 
       await prisma.user.update({
         where: { id: userId },
-        data: { image: `/profile/${userId}${extension}` },
+        data: { image: url },
       });
     },
     async signOut(message) {
