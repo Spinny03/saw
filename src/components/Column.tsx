@@ -12,7 +12,7 @@ interface ColumnProps {
 export default function Column({ columnProp }: ColumnProps) {
   const [column, setColumn] = useState<any>(columnProp);
 
-  const addCard = async (cardName: string, cardMessage = '') => {
+  const addCard = async (cardName: string, cardMessage: string) => {
     try {
       const response = await fetch(`/api/columns/${column.id}/cards`, {
         method: 'POST',
@@ -84,10 +84,13 @@ export default function Column({ columnProp }: ColumnProps) {
               </div>
               <Dialog.Close
                 onClick={() => {
-                  const inputElement = document.getElementById(
+                  const inputName = document.getElementById(
                     'input-titolo'
                   ) as HTMLInputElement;
-                  addCard(inputElement.value);
+                  const inputMessage = document.getElementById(
+                    'input-contenuto'
+                  ) as HTMLInputElement;
+                  addCard(inputMessage.value, inputName.value);
                 }}
                 className="mt-2 rounded-md bg-blue-500 px-4 py-2 text-white"
               >
