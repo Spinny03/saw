@@ -21,6 +21,9 @@ export default function Column({ columnProp }: ColumnProps) {
       });
       if (response.ok) {
         const newCard = await response.json();
+        if (!column.cards) {
+          column.cards = [];
+        }
         column.cards.push(newCard);
         setColumn({ ...column });
       } else {
