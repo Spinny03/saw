@@ -12,14 +12,14 @@ interface ColumnProps {
 export default function Column({ columnProp }: ColumnProps) {
   const [column, setColumn] = useState<any>(columnProp);
 
-  const addCard = async (cardName: string) => {
+  const addCard = async (cardName: string, cardMessage = '') => {
     try {
       const response = await fetch(`/api/columns/${column.id}/cards`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ title: cardName }),
+        body: JSON.stringify({ title: cardName, message: cardMessage }),
       });
       if (response.ok) {
         const newCard = await response.json();
@@ -67,6 +67,18 @@ export default function Column({ columnProp }: ColumnProps) {
                     className="mt-2 block w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm text-gray-900 shadow-sm sm:leading-6"
                     type="text"
                     defaultValue={'New Card'}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-900">
+                    Contenuto
+                  </label>
+                  <input
+                    id="input-contenuto"
+                    autoFocus
+                    className="mt-2 block w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm text-gray-900 shadow-sm sm:leading-6"
+                    type="text"
+                    defaultValue={''}
                   />
                 </div>
               </div>
