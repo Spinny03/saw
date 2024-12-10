@@ -12,6 +12,7 @@ export default function HomePage() {
   const handleSave = () => {
     alert('Credenziali aggiornate con successo!');
   };
+  console.log(session?.user.email);
 
   if (session) {
     session.user.image = undefined;
@@ -39,7 +40,7 @@ export default function HomePage() {
               </label>
               <input
                 type="email"
-                onChange={() => console.log(session.user.email)}
+                onChange={() => console.log(session.user)}
                 className="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
