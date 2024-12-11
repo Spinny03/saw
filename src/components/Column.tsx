@@ -90,7 +90,7 @@ export default function Column({ columnProp }: ColumnProps) {
                   const inputMessage = document.getElementById(
                     'input-contenuto'
                   ) as HTMLInputElement;
-                  addCard(inputMessage.value, inputName.value);
+                  addCard(inputName.value, inputMessage.value);
                 }}
                 className="mt-2 rounded-md bg-blue-500 px-4 py-2 text-white"
               >
