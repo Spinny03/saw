@@ -12,14 +12,14 @@ interface ColumnProps {
 export default function Column({ columnProp }: ColumnProps) {
   const [column, setColumn] = useState<any>(columnProp);
 
-  const addCard = async (cardName: string, cardMessage: string) => {
+  const addCard = async (cardTitle: string, cardMessage: string) => {
     try {
       const response = await fetch(`/api/columns/${column.id}/cards`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ title: cardName, message: cardMessage }),
+        body: JSON.stringify({ title: cardTitle, message: cardMessage }),
       });
       if (response.ok) {
         const newCard = await response.json();
