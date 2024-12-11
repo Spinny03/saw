@@ -38,17 +38,16 @@ export async function POST(
 
   const { id, newMessage } = await request.json();
 
-  const newCard = await prisma.card.update({
+  let card = await prisma.card.update({
     where: {
       id: parseInt(id),
-      columnId: parseInt(columnId),
     },
     data: {
       message: newMessage,
     },
   });
 
-  return new Response(JSON.stringify(newCard), {
+  return new Response(JSON.stringify(card), {
     status: 200,
     headers: {
       'Content-Type': 'application/json',
