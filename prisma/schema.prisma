@@ -80,6 +80,7 @@ model Column {
 model Card {
   id        Int     @id @default(autoincrement())
   title     String
+  message   String  @default("")
   columnId  Int
   column    Column  @relation(fields: [columnId], references: [id])
 }
