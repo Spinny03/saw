@@ -16,8 +16,10 @@ function setMessage() {
 export default function Card({ card }: CardProps) {
   return (
     <div key={card.id} className="mb-2 rounded-md bg-white p-2 shadow">
-      <p>{card.title}</p>
-      <p> {card.message}</p>
+      <h3>
+        <b>{card.title}</b>
+      </h3>
+      <p>{card.message}</p>
     </div>
   );
 }
