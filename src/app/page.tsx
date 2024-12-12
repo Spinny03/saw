@@ -5,6 +5,8 @@ import { Button } from '@radix-ui/themes';
 import SideBar from '../components/SideBar';
 import { useEffect, useState } from 'react';
 import Column from '../components/Column';
+import { Avatar, AvatarGroup } from '@mui/material';
+import ModalBoard from '../components/ModalBoard';
 
 export default function HomePage() {
   const { data: session } = useSession();
@@ -69,8 +71,17 @@ export default function HomePage() {
     return (
       <div className="flex min-h-screen">
         <SideBar onBlockSelect={handleBlockSelect} />
-        <div className="flex-1">
-          <h1>Selezionato: {selectedBoard}</h1>
+        <div className="flex-1 px-5">
+          {board.users && (
+            <div className="flex flex-row gap-4 py-2">
+              <ModalBoard />
+              <AvatarGroup total={board.users.lenght}>
+                {board.users?.map((user: any) => (
+                  <Avatar key={user.id} src={user.image} alt={user.name} />
+                ))}
+              </AvatarGroup>
+            </div>
+          )}
           <div className="flex flex-row gap-4">
             {board.columns?.map((column: any) => (
               <Column
