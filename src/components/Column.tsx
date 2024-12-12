@@ -1,10 +1,10 @@
 'use client';
 
 import Card from './Card';
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Card as CardType } from '@prisma/client';
 import ModalCard from './ModalCard';
-import * as Toast from '@radix-ui/react-toast';
+import ToastComp from './ToastComp';
 
 interface ColumnProps {
   readonly columnProp: any;
@@ -13,9 +13,6 @@ interface ColumnProps {
 
 export default function Column({ columnProp, deleteColumn }: ColumnProps) {
   const [column, setColumn] = useState<any>(columnProp);
-  const [open, setOpen] = useState(false);
-  const eventDateRef = useRef(new Date());
-  const timerRef = useRef(0);
 
   const addCard = async (cardTitle: string, cardMessage: string) => {
     try {
@@ -56,7 +53,6 @@ export default function Column({ columnProp, deleteColumn }: ColumnProps) {
       console.log('Card deleted');
     } else if (response.status === 401) {
       console.log('Non autorizzato');
-      setOpen(true);
     } else {
       console.error('Error deleting card');
     }
@@ -73,17 +69,7 @@ export default function Column({ columnProp, deleteColumn }: ColumnProps) {
           <ModalCard addCard={addCard} />
         </div>
       </div>
-      <Toast.Root open={open} onOpenChange={setOpen}>
-        <Toast.Title>No</Toast.Title>
-        <Toast.Description asChild>
-          <time dateTime={eventDateRef.current.toISOString()}>
-            {eventDateRef.current.toLocaleString()}
-          </time>
-        </Toast.Description>
-        <Toast.Action asChild altText="Goto schedule to undo">
-          <button>Undo</button>
-        </Toast.Action>
-      </Toast.Root>
+      <ToastComp duration={5000} message="Card added" />
     </>
   );
 }

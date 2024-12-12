@@ -2,7 +2,6 @@
 import { Card as CardType } from '@prisma/client';
 import { Cross1Icon } from '@radix-ui/react-icons';
 import { useState } from 'react';
-import { ToastProvider, Toast } from '@radix-ui/react-toast';
 
 interface CardProps {
   readonly card: CardType;
@@ -65,36 +64,28 @@ export default function Card({ card, deleteCard }: CardProps) {
   };
 
   return (
-    <ToastProvider>
-      <div key={card.id} className="mb-2 rounded-md bg-white p-2 shadow">
-        <button
-          className="float-right text-black"
-          onClick={() => {
-            deleteCard(card);
-          }}
-        >
-          <Cross1Icon />
-        </button>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          onBlur={handleTitleBlur}
-          className="w-full border-none text-lg font-bold focus:outline-none"
-        />
-        <textarea
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onBlur={handleMessageBlur}
-          className="mt-2 w-full resize-none border-none focus:outline-none"
-        />
-      </div>
-      <Toast
-        open={toast.open}
-        onOpenChange={(open) => setToast({ ...toast, open })}
+    <div key={card.id} className="mb-2 rounded-md bg-white p-2 shadow">
+      <button
+        className="float-right text-black"
+        onClick={() => {
+          deleteCard(card);
+        }}
       >
-        <Toast>{toast.title}</Toast>
-      </Toast>
-    </ToastProvider>
+        <Cross1Icon />
+      </button>
+      <input
+        type="text"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        onBlur={handleTitleBlur}
+        className="w-full border-none text-lg font-bold focus:outline-none"
+      />
+      <textarea
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        onBlur={handleMessageBlur}
+        className="mt-2 w-full resize-none border-none focus:outline-none"
+      />
+    </div>
   );
 }
