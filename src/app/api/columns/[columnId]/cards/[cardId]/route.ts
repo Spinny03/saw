@@ -27,9 +27,9 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: Promise<{ columnId: string }> }
+  { params }: { params: Promise<{ cardId: string; columnId: string }> }
 ) {
-  const { columnId } = await params;
+  const { cardId, columnId } = await params;
 
   const userId = await getUserId();
   if (!userId) {
@@ -40,7 +40,7 @@ export async function PUT(
 
   const newCard = await prisma.card.update({
     where: {
-      id: parseInt(columnId),
+      id: parseInt(cardId),
     },
     data: {
       title,
