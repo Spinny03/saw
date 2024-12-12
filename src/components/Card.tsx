@@ -5,6 +5,7 @@ import { useState } from 'react';
 
 interface CardProps {
   readonly card: CardType;
+  readonly deleteCard: (card: CardType) => void;
 }
 
 const editCard = async (card: CardType) => {
@@ -29,25 +30,7 @@ const editCard = async (card: CardType) => {
   }
 };
 
-const deleteCard = async (card: CardType) => {
-  try {
-    const response = await fetch(
-      `/api/columns/${card.columnId}/cards/${card.id}`,
-      {
-        method: 'DELETE',
-      }
-    );
-    if (response.ok) {
-      console.log('Card deleted');
-    } else {
-      console.error('Error deleting card');
-    }
-  } catch (error) {
-    console.error('Error deleting card:', error);
-  }
-};
-
-export default function Card({ card }: CardProps) {
+export default function Card({ card, deleteCard }: CardProps) {
   const [title, setTitle] = useState(card.title);
   const [message, setMessage] = useState(card.message);
 

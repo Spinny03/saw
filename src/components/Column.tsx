@@ -4,6 +4,7 @@ import Card from './Card';
 import { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Cross1Icon } from '@radix-ui/react-icons';
+import { Card as CardType } from '@prisma/client';
 
 interface ColumnProps {
   readonly columnProp: any;
@@ -36,11 +37,33 @@ export default function Column({ columnProp }: ColumnProps) {
     }
   };
 
+  const deleteCard = async (card: CardType) => {
+    try {
+      const response = await fetch(
+        `/api/columns/${card.columnId}/cards/${card.id}`,
+        {
+          method: 'DELETE',
+        }
+      );
+      if (response.ok) {
+        column.cards = column.cards.filter((c: CardType) => c.id !== card.id);
+        setColumn({ ...column });
+        console.log('Card deleted');
+      } else {
+        console.error('Error deleting card');
+      }
+    } catch (error) {
+      console.error('Error deleting card:', error);
+    }
+  };
+
   return (
     <div key={column.id} className="rounded-md bg-gray-200 p-4">
       <h2 className="text-lg font-bold">{column.title}</h2>
       <div className="mt-2">
-        {column.cards?.map((card: any) => <Card key={card.id} card={card} />)}
+        {column.cards?.map((card: any) => (
+          <Card key={card.id} card={card} deleteCard={deleteCard} />
+        ))}
         <Dialog.Root>
           <Dialog.Trigger className="mt-2 rounded bg-blue-500 p-2 text-white">
             Aggiungi Scheda
