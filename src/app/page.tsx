@@ -61,6 +61,10 @@ export default function HomePage() {
     }
   };
 
+  function deleteColumn(column: any): void {
+    throw new Error('Function not implemented.');
+  }
+
   if (session) {
     return (
       <div className="flex min-h-screen">
@@ -69,7 +73,11 @@ export default function HomePage() {
           <h1>Selezionato: {selectedBoard}</h1>
           <div className="flex flex-row gap-4">
             {board.columns?.map((column: any) => (
-              <Column key={column.id} columnProp={column} />
+              <Column
+                key={column.id}
+                columnProp={column}
+                deleteColumn={deleteColumn}
+              />
             ))}
             {selectedBoard && (
               <div className="w-full pb-4">

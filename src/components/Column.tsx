@@ -8,9 +8,10 @@ import { Card as CardType } from '@prisma/client';
 
 interface ColumnProps {
   readonly columnProp: any;
+  readonly deleteColumn: (column: any) => void;
 }
 
-export default function Column({ columnProp }: ColumnProps) {
+export default function Column({ columnProp, deleteColumn }: ColumnProps) {
   const [column, setColumn] = useState<any>(columnProp);
 
   const addCard = async (cardTitle: string, cardMessage: string) => {
