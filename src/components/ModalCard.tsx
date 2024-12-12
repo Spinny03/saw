@@ -33,7 +33,7 @@ export default function ModalCard({
             <Dialog.Title className="text-lg font-bold">
               Aggiungi Scheda
             </Dialog.Title>
-            <Dialog.Close className="rounded-md bg-red-500 p-2 text-white">
+            <Dialog.Close className="ml-2 rounded-md bg-red-500 p-2 text-white">
               <Cross1Icon />
             </Dialog.Close>
           </div>
