@@ -6,6 +6,7 @@ import SessionProvider from './SessionProvider';
 import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 import { Theme } from '@radix-ui/themes';
+import * as Toast from '@radix-ui/react-toast';
 const inter = Inter({ subsets: ['latin'] });
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -19,11 +20,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             radius="large"
             scaling="100%"
           >
-            <div className="flex min-h-screen flex-col">
-              <NavBar />
-              <main className="flex-grow">{children}</main>
-              <Footer />
-            </div>
+            <Toast.Provider swipeDirection="down">
+              <div className="flex min-h-screen flex-col">
+                <NavBar />
+                <Toast.Viewport />
+                <main className="flex-grow">{children}</main>
+                <Footer />
+              </div>
+            </Toast.Provider>
           </Theme>
         </SessionProvider>
       </body>

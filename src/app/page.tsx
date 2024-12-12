@@ -75,7 +75,7 @@ export default function HomePage() {
           {board.users && (
             <div className="flex flex-row gap-4 py-2">
               <ModalBoard />
-              <AvatarGroup total={board.users.lenght}>
+              <AvatarGroup total={board.users.lenght} max={4}>
                 {board.users?.map((user: any) => (
                   <Avatar key={user.id} src={user.image} alt={user.name} />
                 ))}

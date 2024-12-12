@@ -72,12 +72,11 @@ export async function DELETE(
     where: {
       id: parseInt(columnId),
     },
-  });
-  const board = await prisma.board.findUnique({
-    where: {
-      id: column?.boardId,
+    include: {
+      board: true,
     },
   });
+  const board = column?.board;
   const owner = board?.ownerId;
 
   if (owner !== userId) {
