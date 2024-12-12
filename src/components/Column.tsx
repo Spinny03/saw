@@ -58,7 +58,10 @@ export default function Column({ columnProp }: ColumnProps) {
               </div>
               <div className="space-y-6">
                 <div>
-                  <label className="text-sm font-medium text-gray-900">
+                  <label
+                    htmlFor="input-titolo"
+                    className="text-sm font-medium text-gray-900"
+                  >
                     Titolo
                   </label>
                   <input
@@ -70,7 +73,10 @@ export default function Column({ columnProp }: ColumnProps) {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-900">
+                  <label
+                    htmlFor="input-contenuto"
+                    className="text-sm font-medium text-gray-900"
+                  >
                     Contenuto
                   </label>
                   <input

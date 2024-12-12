@@ -1,5 +1,6 @@
 'use client';
 import { Card as CardType } from '@prisma/client';
+import { Cross1Icon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 
 interface CardProps {
@@ -28,6 +29,24 @@ const editCard = async (card: CardType) => {
   }
 };
 
+const deleteCard = async (card: CardType) => {
+  try {
+    const response = await fetch(
+      `/api/columns/${card.columnId}/cards/${card.id}`,
+      {
+        method: 'DELETE',
+      }
+    );
+    if (response.ok) {
+      console.log('Card deleted');
+    } else {
+      console.error('Error deleting card');
+    }
+  } catch (error) {
+    console.error('Error deleting card:', error);
+  }
+};
+
 export default function Card({ card }: CardProps) {
   const [title, setTitle] = useState(card.title);
   const [message, setMessage] = useState(card.message);
@@ -48,6 +67,14 @@ export default function Card({ card }: CardProps) {
 
   return (
     <div key={card.id} className="mb-2 rounded-md bg-white p-2 shadow">
+      <button
+        className="float-right text-black"
+        onClick={() => {
+          deleteCard(card);
+        }}
+      >
+        <Cross1Icon />
+      </button>
       <input
         type="text"
         value={title}
