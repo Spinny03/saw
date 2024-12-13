@@ -5,9 +5,13 @@ import { Cross1Icon } from '@radix-ui/react-icons';
 import { useState, useEffect } from 'react';
 import * as Select from '@radix-ui/react-select';
 
-export default function ModalBoard() {
+export default function ModalBoard({
+  addUser,
+}: {
+  addUser: (userId: string) => Promise<void>;
+}) {
   interface User {
-    id: number;
+    id: string;
     name: string;
     image: string;
   }
@@ -43,11 +47,12 @@ export default function ModalBoard() {
           <div className="space-y-6">
             <div>
               <Select.Root
-                onValueChange={(value) =>
+                onValueChange={(value) => {
+                  console.log(value);
                   setSelectedUser(
-                    users.find((user) => user.id === parseInt(value)) || null
-                  )
-                }
+                    users.find((user) => user.id === value) || null
+                  );
+                }}
               >
                 <Select.Trigger className="mt-2 block w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm text-gray-900 shadow-sm sm:leading-6">
                   <Select.Value placeholder="Seleziona un utente" />
@@ -86,7 +91,8 @@ export default function ModalBoard() {
           </div>
           <Dialog.Close
             onClick={() => {
-              // addCard(form.title, form.message);
+              console.log('Selected user:', selectedUser);
+              if (selectedUser) addUser(selectedUser?.id);
             }}
             className="mt-2 rounded-md bg-blue-500 px-4 py-2 text-white"
           >

@@ -38,6 +38,28 @@ export default function HomePage() {
     fetchData();
   }, [selectedBoard]);
 
+  const addUser = async (userId: string) => {
+    if (!selectedBoard) return;
+    try {
+      const response = await fetch(`/api/board/${selectedBoard}/users`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+      });
+      if (response.ok) {
+        const newUser = await response.json();
+        board.users.push(newUser);
+        setBoard({ ...board });
+      } else {
+        console.error('Error adding user');
+      }
+    } catch (error) {
+      console.error('Error adding user:', error);
+    }
+  };
+
   const addColumn = async () => {
     if (!selectedBoard) return;
     try {
@@ -74,7 +96,7 @@ export default function HomePage() {
         <div className="flex-1 px-5">
           {board.users && (
             <div className="flex flex-row gap-4 py-2">
-              <ModalBoard />
+              <ModalBoard addUser={addUser} />
               <AvatarGroup total={board.users.lenght} max={4}>
                 {board.users?.map((user: any) => (
                   <Avatar key={user.id} src={user.image} alt={user.name} />
