@@ -1,12 +1,17 @@
 'use client';
 import { Card as CardType } from '@prisma/client';
+import { Cross1Icon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 
 interface CardProps {
   readonly card: CardType;
+  readonly deleteCard: (card: CardType) => void;
 }
 
-const editCard = async (card: CardType) => {
+const editCard = async (
+  card: CardType,
+  showToast: (message: string) => void
+) => {
   try {
     const response = await fetch(
       `/api/columns/${card.columnId}/cards/${card.id}`,
@@ -20,6 +25,8 @@ const editCard = async (card: CardType) => {
     );
     if (response.ok) {
       console.log('Card name updated');
+    } else if (response.status === 401) {
+      showToast('Non autorizzato');
     } else {
       console.error('Error updating card title');
     }
@@ -28,26 +35,44 @@ const editCard = async (card: CardType) => {
   }
 };
 
-export default function Card({ card }: CardProps) {
+const useToast = () => {
+  const [toast, setToast] = useState({ open: false, title: '' });
+  return { toast, setToast };
+};
+
+export default function Card({ card, deleteCard }: CardProps) {
   const [title, setTitle] = useState(card.title);
   const [message, setMessage] = useState(card.message);
+  const { toast, setToast } = useToast();
+
+  const showToast = (message: string) => {
+    setToast({ open: true, title: message });
+  };
 
   const handleTitleBlur = () => {
     if (title !== card.title) {
       card.title = title;
-      editCard(card);
+      editCard(card, showToast);
     }
   };
 
   const handleMessageBlur = () => {
     if (message !== card.message) {
       card.message = message;
-      editCard(card);
+      editCard(card, showToast);
     }
   };
 
   return (
     <div key={card.id} className="mb-2 rounded-md bg-white p-2 shadow">
+      <button
+        className="float-right text-black"
+        onClick={() => {
+          deleteCard(card);
+        }}
+      >
+        <Cross1Icon />
+      </button>
       <input
         type="text"
         value={title}

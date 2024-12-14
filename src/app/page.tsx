@@ -1,10 +1,11 @@
 // app/page.tsx
 'use client';
 import { useSession } from 'next-auth/react';
-import { Button } from '@radix-ui/themes';
 import SideBar from '../components/SideBar';
 import { useEffect, useState } from 'react';
 import Column from '../components/Column';
+import { Avatar, AvatarGroup } from '@mui/material';
+import ModalBoard from '../components/ModalBoard';
 
 export default function HomePage() {
   const { data: session } = useSession();
@@ -36,6 +37,28 @@ export default function HomePage() {
     fetchData();
   }, [selectedBoard]);
 
+  const addUser = async (userId: string) => {
+    if (!selectedBoard) return;
+    try {
+      const response = await fetch(`/api/board/${selectedBoard}/users`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+      });
+      if (response.ok) {
+        const newUser = await response.json();
+        board.users.push(newUser);
+        setBoard({ ...board });
+      } else {
+        console.error('Error adding user');
+      }
+    } catch (error) {
+      console.error('Error adding user:', error);
+    }
+  };
+
   const addColumn = async () => {
     if (!selectedBoard) return;
     try {
@@ -61,15 +84,49 @@ export default function HomePage() {
     }
   };
 
+  function deleteColumn(column: any): void {
+    fetch(`/api/columns/${column.id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          board.columns = board.columns.filter((c: any) => c.id !== column.id);
+          setBoard({ ...board });
+          console.log('Column deleted');
+        } else {
+          console.error('Error deleting column');
+        }
+      })
+      .catch((error) => {
+        console.error('Error deleting column:', error);
+      });
+  }
+
   if (session) {
     return (
       <div className="flex min-h-screen">
         <SideBar onBlockSelect={handleBlockSelect} />
-        <div className="flex-1">
-          <h1>Selezionato: {selectedBoard}</h1>
+        <div className="flex-1 px-5">
+          {board.users && (
+            <div className="flex flex-row gap-4 py-2">
+              <ModalBoard addUser={addUser} />
+              <AvatarGroup total={board.users.lenght} max={4}>
+                {board.users?.map((user: any) => (
+                  <Avatar key={user.id} src={user.image} alt={user.name} />
+                ))}
+              </AvatarGroup>
+            </div>
+          )}
           <div className="flex flex-row gap-4">
             {board.columns?.map((column: any) => (
-              <Column key={column.id} columnProp={column} />
+              <Column
+                key={column.id}
+                columnProp={column}
+                deleteColumn={deleteColumn}
+              />
             ))}
             {selectedBoard && (
               <div className="w-full pb-4">

@@ -56,3 +56,47 @@ export async function PUT(
     },
   });
 }
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ cardId: string; columnId: string }> }
+) {
+  const { cardId, columnId } = await params;
+
+  const userId = await getUserId();
+  if (!userId) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
+  const column = await prisma.column.findUnique({
+    where: {
+      id: parseInt(columnId),
+    },
+    include: {
+      board: true,
+    },
+  });
+  const board = column?.board;
+  const owner = board?.ownerId;
+
+  if (owner !== userId) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
+  if (!column || !board) {
+    return new Response('Error', { status: 500 });
+  }
+
+  await prisma.card.delete({
+    where: {
+      id: parseInt(cardId),
+    },
+  });
+
+  return new Response('Card Deleted', {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
