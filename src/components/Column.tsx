@@ -4,6 +4,7 @@ import Card from './Card';
 import { useState } from 'react';
 import { Card as CardType } from '@prisma/client';
 import ModalCard from './ModalCard';
+import { Cross1Icon } from '@radix-ui/react-icons';
 
 interface ColumnProps {
   readonly columnProp: any;
@@ -60,6 +61,14 @@ export default function Column({ columnProp, deleteColumn }: ColumnProps) {
   return (
     <div key={column.id} className="rounded-md bg-gray-200 p-4">
       <h2 className="text-lg font-bold">{column.title}</h2>
+      <button
+        onClick={() => {
+          deleteColumn(column);
+        }}
+        className="text-red-500"
+      >
+        <Cross1Icon />
+      </button>
       <div className="mt-2">
         {column.cards?.map((card: any) => (
           <Card key={card.id} card={card} deleteCard={deleteCard} />

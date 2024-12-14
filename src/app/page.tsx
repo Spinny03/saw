@@ -62,7 +62,25 @@ export default function HomePage() {
   };
 
   function deleteColumn(column: any): void {
-    throw new Error('Function not implemented.');
+    fetch(`/api/columns/${column.id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ owner: board.ownerId }),
+    })
+      .then((response) => {
+        if (response.ok) {
+          board.columns = board.columns.filter((c: any) => c.id !== column.id);
+          setBoard({ ...board });
+          console.log('Column deleted');
+        } else {
+          console.error('Error deleting column');
+        }
+      })
+      .catch((error) => {
+        console.error('Error deleting column:', error);
+      });
   }
 
   if (session) {
