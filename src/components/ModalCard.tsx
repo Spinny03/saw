@@ -28,12 +28,12 @@ export default function ModalCard({
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50" />
-        <Dialog.Content className="-translate-x-1.2 fixed left-1/2 top-1/2 -translate-y-1/2 rounded-md bg-white p-8 text-gray-900 shadow">
+        <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform rounded-md bg-white p-6 shadow-lg">
           <div className="flex items-center justify-between">
             <Dialog.Title className="text-lg font-bold">
               Aggiungi Scheda
             </Dialog.Title>
-            <Dialog.Close className="rounded-md bg-red-500 p-2 text-white">
+            <Dialog.Close className="ml-2 rounded-md bg-red-500 p-2 text-white">
               <Cross1Icon />
             </Dialog.Close>
           </div>
