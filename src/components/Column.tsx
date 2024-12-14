@@ -4,11 +4,8 @@ import Card from './Card';
 import { useState } from 'react';
 import { Card as CardType } from '@prisma/client';
 import ModalCard from './ModalCard';
-<<<<<<< HEAD
 import { Cross1Icon } from '@radix-ui/react-icons';
-=======
 import ToastComp from './ToastComp';
->>>>>>> 91dffa1a665c2a8b2a21bebf57566c1d4404d0da
 
 interface ColumnProps {
   readonly columnProp: any;
@@ -44,19 +41,19 @@ export default function Column({ columnProp, deleteColumn }: ColumnProps) {
 
   const deleteCard = async (card: CardType) => {
     try {
-    const response = await fetch(
-      `/api/columns/${card.columnId}/cards/${card.id}`,
-      {
-        method: 'DELETE',
+      const response = await fetch(
+        `/api/columns/${card.columnId}/cards/${card.id}`,
+        {
+          method: 'DELETE',
+        }
+      );
+      if (response.ok) {
+        column.cards = column.cards.filter((c: CardType) => c.id !== card.id);
+        setColumn({ ...column });
+        console.log('Card deleted');
+      } else {
+        console.error('Error deleting card');
       }
-    );
-    if (response.ok) {
-      column.cards = column.cards.filter((c: CardType) => c.id !== card.id);
-      setColumn({ ...column });
-      console.log('Card deleted');
-    } else {
-      console.error('Error deleting card');
-    }
     } catch (error) {
       console.error('Error deleting card:', error);
     }
