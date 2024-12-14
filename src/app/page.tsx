@@ -1,7 +1,6 @@
 // app/page.tsx
 'use client';
 import { useSession } from 'next-auth/react';
-import { Button } from '@radix-ui/themes';
 import SideBar from '../components/SideBar';
 import { useEffect, useState } from 'react';
 import Column from '../components/Column';
@@ -91,7 +90,6 @@ export default function HomePage() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ owner: board.ownerId }),
     })
       .then((response) => {
         if (response.ok) {

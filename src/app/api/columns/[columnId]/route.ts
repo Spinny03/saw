@@ -12,12 +12,6 @@ export async function DELETE(
     return new Response('Unauthorized', { status: 401 });
   }
 
-  const { owner } = await request.json();
-
-  if (owner !== userId) {
-    return new Response('Unauthorized', { status: 401 });
-  }
-
   await prisma.column.delete({
     where: {
       id: parseInt(columnId),
