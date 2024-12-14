@@ -24,7 +24,7 @@ const Navbar: React.FC = () => {
         className="text-lg font-bold focus:outline-none"
         onClick={() => router.push('/')}
       >
-        MyApp
+        CoralApp
       </Toolbar.Button>
 
       {/* Search Bar or Icon */}

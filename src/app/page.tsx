@@ -48,6 +48,9 @@ export default function HomePage() {
       });
       if (response.ok) {
         const newColumn = await response.json();
+        if (!board.columns) {
+          board.columns = [];
+        }
         board.columns.push(newColumn);
         setBoard({ ...board });
       } else {

@@ -3,17 +3,17 @@ import { prisma } from '@/prisma';
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ columnId: string }> }
+  { params }: { params: Promise<{ rowId: string }> }
 ) {
-  const { columnId } = await params;
+  const { rowId } = await params;
   const userId = await getUserId();
   if (!userId) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  const cards = await prisma.card.findMany({
+  const cards = await prisma.card.findUnique({
     where: {
-      columnId: parseInt(columnId),
+      id: parseInt(rowId),
     },
   });
 
@@ -25,11 +25,11 @@ export async function GET(
   });
 }
 
-export async function POST(
+export async function PUT(
   request: Request,
-  { params }: { params: Promise<{ columnId: string }> }
+  { params }: { params: Promise<{ cardId: string; columnId: string }> }
 ) {
-  const { columnId } = await params;
+  const { cardId, columnId } = await params;
 
   const userId = await getUserId();
   if (!userId) {
@@ -38,7 +38,10 @@ export async function POST(
 
   const { title, message } = await request.json();
 
-  const newCard = await prisma.card.create({
+  const newCard = await prisma.card.update({
+    where: {
+      id: parseInt(cardId),
+    },
     data: {
       title,
       message,
