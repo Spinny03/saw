@@ -70,28 +70,46 @@ export default function Column({
     }
   };
 
-  return (
-    <div key={column.id} className="rounded-md bg-gray-200 p-4">
-      <h2 className="text-lg font-bold">{column.title}</h2>
-      <button
-        onClick={() => {
-          deleteColumn(column);
-        }}
-        className="text-red-500"
-      >
-        <Cross1Icon />
-      </button>
-      <div className="mt-2">
-        {column.cards?.map((card: any) => (
-          <Card
-            key={card.id}
-            card={card}
-            deleteCard={deleteCard}
-            editable={owner == currUser}
-          />
-        ))}
-        <ModalCard addCard={addCard} />
+  if (owner == currUser) {
+    return (
+      <div key={column.id} className="rounded-md bg-gray-200 p-4">
+        <h2 className="text-lg font-bold">{column.title}</h2>
+        <button
+          onClick={() => {
+            deleteColumn(column);
+          }}
+          className="text-red-500"
+        >
+          <Cross1Icon />
+        </button>
+        <div className="mt-2">
+          {column.cards?.map((card: any) => (
+            <Card
+              key={card.id}
+              card={card}
+              deleteCard={deleteCard}
+              editable={owner == currUser}
+            />
+          ))}
+          <ModalCard addCard={addCard} />
+        </div>
       </div>
-    </div>
-  );
+    );
+  } else {
+    return (
+      <div key={column.id} className="rounded-md bg-gray-200 p-4">
+        <h2 className="text-lg font-bold">{column.title}</h2>
+        <div className="mt-2">
+          {column.cards?.map((card: any) => (
+            <Card
+              key={card.id}
+              card={card}
+              deleteCard={deleteCard}
+              editable={owner == currUser}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
 }
