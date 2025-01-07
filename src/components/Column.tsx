@@ -1,19 +1,30 @@
 'use client';
 
+import { useSession } from 'next-auth/react';
 import Card from './Card';
 import { useState } from 'react';
 import { Card as CardType } from '@prisma/client';
 import ModalCard from './ModalCard';
 import { Cross1Icon } from '@radix-ui/react-icons';
-import ToastComp from './ToastComp';
 
 interface ColumnProps {
   readonly columnProp: any;
   readonly deleteColumn: (column: any) => void;
+  owner: string;
 }
 
-export default function Column({ columnProp, deleteColumn }: ColumnProps) {
+export default function Column({
+  columnProp,
+  deleteColumn,
+  owner,
+}: ColumnProps) {
+  const { data: session } = useSession(); // Recupera i dati della sessione
   const [column, setColumn] = useState<any>(columnProp);
+
+  const currUser = session?.user?.id;
+  if (!currUser) {
+    throw new Error('User is not authenticated'); // Lancia un errore se l'ID utente non è disponibile
+  }
 
   const addCard = async (cardTitle: string, cardMessage: string) => {
     try {
@@ -72,7 +83,12 @@ export default function Column({ columnProp, deleteColumn }: ColumnProps) {
       </button>
       <div className="mt-2">
         {column.cards?.map((card: any) => (
-          <Card key={card.id} card={card} deleteCard={deleteCard} />
+          <Card
+            key={card.id}
+            card={card}
+            deleteCard={deleteCard}
+            editable={owner == currUser}
+          />
         ))}
         <ModalCard addCard={addCard} />
       </div>

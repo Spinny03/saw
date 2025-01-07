@@ -6,6 +6,7 @@ import { useState } from 'react';
 interface CardProps {
   readonly card: CardType;
   readonly deleteCard: (card: CardType) => void;
+  readonly editable: boolean;
 }
 
 const editCard = async (
@@ -40,7 +41,7 @@ const useToast = () => {
   return { toast, setToast };
 };
 
-export default function Card({ card, deleteCard }: CardProps) {
+export default function Card({ card, deleteCard, editable }: CardProps) {
   const [title, setTitle] = useState(card.title);
   const [message, setMessage] = useState(card.message);
   const { toast, setToast } = useToast();
@@ -63,29 +64,38 @@ export default function Card({ card, deleteCard }: CardProps) {
     }
   };
 
-  return (
-    <div key={card.id} className="mb-2 rounded-md bg-white p-2 shadow">
-      <button
-        className="float-right text-black"
-        onClick={() => {
-          deleteCard(card);
-        }}
-      >
-        <Cross1Icon />
-      </button>
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        onBlur={handleTitleBlur}
-        className="w-full border-none text-lg font-bold focus:outline-none"
-      />
-      <textarea
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        onBlur={handleMessageBlur}
-        className="mt-2 w-full resize-none border-none focus:outline-none"
-      />
-    </div>
-  );
+  if (editable) {
+    return (
+      <div key={card.id} className="mb-2 rounded-md bg-white p-2 shadow">
+        <button
+          className="float-right text-black"
+          onClick={() => {
+            deleteCard(card);
+          }}
+        >
+          <Cross1Icon />
+        </button>
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          onBlur={handleTitleBlur}
+          className="w-full border-none text-lg font-bold focus:outline-none"
+        />
+        <textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onBlur={handleMessageBlur}
+          className="mt-2 w-full resize-none border-none focus:outline-none"
+        />
+      </div>
+    );
+  } else {
+    return (
+      <div key={card.id} className="mb-2 rounded-md bg-white p-2 shadow">
+        <h3 className="text-lg font-bold">{card.title}</h3>
+        <p className="mt-2">{card.message}</p>
+      </div>
+    );
+  }
 }

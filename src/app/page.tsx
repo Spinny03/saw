@@ -126,6 +126,7 @@ export default function HomePage() {
                 key={column.id}
                 columnProp={column}
                 deleteColumn={deleteColumn}
+                owner={board.ownerId}
               />
             ))}
             {selectedBoard && (
@@ -208,13 +209,15 @@ export default function HomePage() {
           </section>
 
           {/* Product Description */}
-          <section className="mb-20 flex flex-col items-center justify-between lg:flex-row">
+          <section className="mb-20 flex flex-col items-start justify-between lg:flex-row">
+            {' '}
+            {/* Modifica qui: items-center -> items-start */}
             <img
               src="https://via.placeholder.com/600x400"
               alt="CoralApp Example"
-              className="mb-8 w-full rounded-lg shadow-lg lg:mb-0 lg:w-1/2"
+              className="mr-8 w-full rounded-lg shadow-lg lg:mb-0 lg:w-1/2"
             />
-            <div className="lg:w-1/2">
+            <div className="ml-8 flex flex-col justify-start lg:mt-0 lg:w-1/2">
               <h2 className="mb-4 text-2xl font-semibold">
                 Organizza il tuo lavoro in modo semplice e visivo
               </h2>

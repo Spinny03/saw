@@ -12,6 +12,9 @@ const inter = Inter({ subsets: ['latin'] });
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <title>CoralApp</title>
+      </head>
       <body className={inter.className}>
         <SessionProvider>
           <Theme
