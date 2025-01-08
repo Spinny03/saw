@@ -5,7 +5,7 @@ import Card from './Card';
 import { useState } from 'react';
 import { Card as CardType } from '@prisma/client';
 import ModalCard from './ModalCard';
-import { Cross1Icon } from '@radix-ui/react-icons';
+import { TrashIcon } from '@radix-ui/react-icons';
 
 interface ColumnProps {
   readonly columnProp: any;
@@ -127,9 +127,9 @@ export default function Column({
             onClick={() => {
               deleteColumn(column);
             }}
-            className="text-red-500"
+            className="grey-500 rounded-md p-1 hover:bg-gray-300"
           >
-            <Cross1Icon />
+            <TrashIcon />
           </button>
         </div>
         <div className="mt-2">

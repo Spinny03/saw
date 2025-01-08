@@ -68,7 +68,7 @@ export default function Card({ card, deleteCard, editable }: CardProps) {
     return (
       <div key={card.id} className="mb-2 rounded-md bg-white p-2 shadow">
         <button
-          className="float-right text-black"
+          className="float-right rounded-md p-1 text-black hover:bg-gray-300"
           onClick={() => {
             deleteCard(card);
           }}

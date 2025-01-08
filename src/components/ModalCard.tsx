@@ -23,7 +23,7 @@ export default function ModalCard({
 
   return (
     <Dialog.Root>
-      <Dialog.Trigger className="mt-2 rounded bg-blue-500 p-2 text-white">
+      <Dialog.Trigger className="mt-2 rounded bg-blue-500 p-2 text-white hover:bg-blue-700">
         Aggiungi Scheda
       </Dialog.Trigger>
       <Dialog.Portal>
