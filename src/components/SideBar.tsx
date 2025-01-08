@@ -1,4 +1,6 @@
 'use client';
+
+import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { Root, Item } from '@radix-ui/react-toggle-group';
 import { Board } from '@prisma/client';
@@ -11,6 +13,12 @@ export default function SideBar({ onBlockSelect }: SideBarProps) {
   const [selectedBlock, setSelectedBlock] = useState('1');
   const [blocks, setBlocks] = useState<Board[]>([]);
   const [boardName, setBoardName] = useState('');
+  const { data: session } = useSession(); // Recupera i dati della sessione
+
+  const currUser = session?.user?.id;
+  if (!currUser) {
+    throw new Error('User is not authenticated'); // Lancia un errore se l'ID utente non è disponibile
+  }
 
   const handleValueChange = (value: string) => {
     if (!value) return;
@@ -52,7 +60,9 @@ export default function SideBar({ onBlockSelect }: SideBarProps) {
 
   return (
     <div className="w-25 flex h-screen flex-col items-center overflow-y-auto bg-gray-100 p-4">
-      <strong>My Boards</strong>
+      <h1>
+        <strong>My Boards</strong>
+      </h1>
       <div className="w-full pb-4">
         <button
           onClick={createBoard}
@@ -70,20 +80,51 @@ export default function SideBar({ onBlockSelect }: SideBarProps) {
           onValueChange={handleValueChange}
         >
           {blocks.length > 0
-            ? blocks.map((block: Board) => (
-                <Item
-                  key={block.id}
-                  value={block.id.toString()}
-                  aria-label={`Block ${block.id}`}
-                  className={`flex h-12 w-12 cursor-pointer items-center justify-center rounded-md hover:bg-blue-700 active:ring-2 active:ring-gray-500 active:ring-offset-2 ${
-                    selectedBlock === block.id.toString()
-                      ? 'bg-blue-700 text-white'
-                      : 'bg-gray-700 text-white'
-                  }`}
-                >
-                  {block.id}
-                </Item>
-              ))
+            ? blocks
+                .filter((block: Board) => block.ownerId === currUser)
+                .map((block: Board) => (
+                  <Item
+                    key={block.id}
+                    value={block.id.toString()}
+                    aria-label={`Block ${block.id}`}
+                    className={`flex h-12 w-12 cursor-pointer items-center justify-center rounded-md hover:bg-blue-700 active:ring-2 active:ring-gray-500 active:ring-offset-2 ${
+                      selectedBlock === block.id.toString()
+                        ? 'bg-blue-700 text-white'
+                        : 'bg-gray-700 text-white'
+                    }`}
+                  >
+                    {block.id}
+                  </Item>
+                ))
+            : null}
+        </Root>
+        <h1 className="mb-4 mt-4">
+          <strong>Host Boards</strong>
+        </h1>
+        <Root
+          type="single"
+          defaultValue="1"
+          aria-label="Sidebar blocks"
+          className="flex flex-col gap-4"
+          onValueChange={handleValueChange}
+        >
+          {blocks.length > 0
+            ? blocks
+                .filter((block: Board) => block.ownerId !== currUser)
+                .map((block: Board) => (
+                  <Item
+                    key={block.id}
+                    value={block.id.toString()}
+                    aria-label={`Block ${block.id}`}
+                    className={`flex h-12 w-12 cursor-pointer items-center justify-center rounded-md hover:bg-blue-700 active:ring-2 active:ring-gray-500 active:ring-offset-2 ${
+                      selectedBlock === block.id.toString()
+                        ? 'bg-blue-700 text-white'
+                        : 'bg-gray-700 text-white'
+                    }`}
+                  >
+                    {block.id}
+                  </Item>
+                ))
             : null}
         </Root>
       </div>
