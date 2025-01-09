@@ -55,14 +55,20 @@ export default function Column({
   const [title, setTitle] = useState(column.title);
   const { toast, setToast } = useToast();
 
-  const { setNodeRef, attributes, listeners, transform, transition } =
-    useSortable({
-      id: column.id,
-      data: {
-        type: 'column',
-        column,
-      },
-    });
+  const {
+    setNodeRef,
+    attributes,
+    listeners,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: column.id,
+    data: {
+      type: 'column',
+      column,
+    },
+  });
 
   const style = {
     transition,
@@ -128,6 +134,16 @@ export default function Column({
       console.error('Error deleting card:', error);
     }
   };
+
+  if (isDragging) {
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        className="rounded-md border-2 border-gray-400 bg-gray-200 p-4 opacity-60"
+      ></div>
+    );
+  }
 
   if (owner == currUser) {
     return (

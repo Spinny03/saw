@@ -7,8 +7,9 @@ import { Avatar, AvatarGroup } from '@mui/material';
 import ModalBoard from '../components/ModalBoard';
 import LandingPage from '@/components/LandingPage';
 import { Column as ColumnType } from '@prisma/client';
-import { DndContext } from '@dnd-kit/core';
+import { DndContext, DragOverlay, DragStartEvent } from '@dnd-kit/core';
 import { SortableContext } from '@dnd-kit/sortable';
+import { createPortal } from 'react-dom';
 
 export default function HomePage() {
   const { data: session } = useSession();
@@ -16,6 +17,7 @@ export default function HomePage() {
   const [board, setBoard] = useState<any>([]);
   const [columns, setColumns] = useState<ColumnType[]>([]);
   const columnsIds = useMemo(() => columns.map((c) => c.id), [columns]);
+  const [activeColumn, setActiveColumn] = useState<ColumnType | null>(null);
 
   const handleBlockSelect = async (blockId: string) => {
     setSelectedBoard(blockId);
@@ -111,7 +113,7 @@ export default function HomePage() {
               </AvatarGroup>
             </div>
           )}
-          <DndContext>
+          <DndContext onDragStart={onDragStart}>
             <div className="flex flex-row gap-4">
               <SortableContext items={columnsIds}>
                 {columns?.map(
@@ -138,11 +140,31 @@ export default function HomePage() {
                 )}
               </SortableContext>
             </div>
+            {createPortal(
+              <DragOverlay>
+                {activeColumn && (
+                  <Column
+                    key={activeColumn.id}
+                    columnProp={activeColumn}
+                    deleteColumn={deleteColumn}
+                    owner={board.ownerId}
+                  />
+                )}
+              </DragOverlay>,
+              document.body
+            )}
           </DndContext>
         </div>
       </div>
     );
   } else {
     return <LandingPage />;
+  }
+
+  function onDragStart(event: DragStartEvent) {
+    console.log('Drag started', event);
+    if (event.active.data.current?.type === 'column') {
+      setActiveColumn(event.active.data.current.column);
+    }
   }
 }
