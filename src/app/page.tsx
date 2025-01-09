@@ -7,8 +7,16 @@ import { Avatar, AvatarGroup } from '@mui/material';
 import ModalBoard from '../components/ModalBoard';
 import LandingPage from '@/components/LandingPage';
 import { Column as ColumnType } from '@prisma/client';
-import { DndContext, DragOverlay, DragStartEvent } from '@dnd-kit/core';
-import { SortableContext } from '@dnd-kit/sortable';
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import { arrayMove, SortableContext } from '@dnd-kit/sortable';
 import { createPortal } from 'react-dom';
 
 export default function HomePage() {
@@ -18,6 +26,14 @@ export default function HomePage() {
   const [columns, setColumns] = useState<ColumnType[]>([]);
   const columnsIds = useMemo(() => columns.map((c) => c.id), [columns]);
   const [activeColumn, setActiveColumn] = useState<ColumnType | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 10,
+      },
+    })
+  );
 
   const handleBlockSelect = async (blockId: string) => {
     setSelectedBoard(blockId);
@@ -113,7 +129,11 @@ export default function HomePage() {
               </AvatarGroup>
             </div>
           )}
-          <DndContext onDragStart={onDragStart}>
+          <DndContext
+            onDragStart={onDragStart}
+            onDragEnd={onDragEnd}
+            sensors={sensors}
+          >
             <div className="flex flex-row gap-4">
               <SortableContext items={columnsIds}>
                 {columns?.map(
@@ -166,5 +186,20 @@ export default function HomePage() {
     if (event.active.data.current?.type === 'column') {
       setActiveColumn(event.active.data.current.column);
     }
+  }
+
+  function onDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    if (!over) return;
+    const activeColumnId = active.id;
+    const overColumnId = over.id;
+
+    if (activeColumnId === overColumnId) return;
+    setColumns((columns) => {
+      const activeIndex = columns.findIndex((c) => c.id === activeColumnId);
+      const overIndex = columns.findIndex((c) => c.id === overColumnId);
+      return arrayMove(columns, activeIndex, overIndex);
+    });
   }
 }
