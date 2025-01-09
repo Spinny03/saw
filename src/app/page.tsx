@@ -6,7 +6,7 @@ import Column from '../components/Column';
 import { Avatar, AvatarGroup } from '@mui/material';
 import ModalBoard from '../components/ModalBoard';
 import LandingPage from '@/components/LandingPage';
-import { Column as ColumnType } from '@prisma/client';
+import { Column as PrismaColumn, Card as PrismaCard } from '@prisma/client';
 import {
   DndContext,
   DragEndEvent,
@@ -18,6 +18,10 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, SortableContext } from '@dnd-kit/sortable';
 import { createPortal } from 'react-dom';
+
+interface ColumnType extends PrismaColumn {
+  cards: PrismaCard[];
+}
 
 export default function HomePage() {
   const { data: session } = useSession();
@@ -41,7 +45,10 @@ export default function HomePage() {
       const response = await fetch(`/api/board/${blockId}`);
       const data = await response.json();
       setBoard(data || []);
-      setColumns(data.columns || []);
+      const sortedColumns = (data.columns || []).sort(
+        (a: ColumnType, b: ColumnType) => a.boardOrder - b.boardOrder
+      );
+      setColumns(sortedColumns);
     } catch (error) {
       console.error('Error fetching columns:', error);
     }
@@ -79,11 +86,18 @@ export default function HomePage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ title: 'New Column' }),
+        body: JSON.stringify({
+          title: 'New Column',
+          boardOrder: columns.length,
+        }),
       });
       if (response.ok) {
         const newColumn = await response.json();
-        setColumns((prevColumns) => [...prevColumns, newColumn]);
+        setColumns((prevColumns) => {
+          const updatedColumns = [...prevColumns, newColumn];
+          updatedColumns.sort((a, b) => a.boardOrder - b.boardOrder);
+          return updatedColumns;
+        });
       } else {
         console.error('Error adding column');
       }
@@ -136,18 +150,16 @@ export default function HomePage() {
           >
             <div className="flex flex-row gap-4">
               <SortableContext items={columnsIds}>
-                {columns?.map(
-                  (
-                    column: ColumnType // Usa columns invece di board.columns
-                  ) => (
+                {columns
+                  .toSorted((a, b) => a.boardOrder - b.boardOrder) // Ordina le colonne in base al boardOrder
+                  .map((column: ColumnType) => (
                     <Column
                       key={column.id}
                       columnProp={column}
                       deleteColumn={deleteColumn}
                       owner={board.ownerId}
                     />
-                  )
-                )}
+                  ))}
                 {selectedBoard && (
                   <div className="w-full pb-4">
                     <button
@@ -182,10 +194,29 @@ export default function HomePage() {
   }
 
   function onDragStart(event: DragStartEvent) {
-    console.log('Drag started', event);
     if (event.active.data.current?.type === 'column') {
       setActiveColumn(event.active.data.current.column);
+      console.log('Drag started', event.active.data.current.column.boardOrder);
     }
+  }
+
+  function moveColumn(fromIndex: number, toIndex: number) {
+    setColumns((columns) => {
+      const updatedColumns = arrayMove(columns, fromIndex, toIndex);
+      updatedColumns.forEach((column, index) => {
+        if (column.boardOrder !== index) {
+          column.boardOrder = index;
+          fetch(`/api/columns/${column.id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ boardOrder: index }),
+          });
+        }
+      });
+      return updatedColumns;
+    });
   }
 
   function onDragEnd(event: DragEndEvent) {
@@ -196,10 +227,9 @@ export default function HomePage() {
     const overColumnId = over.id;
 
     if (activeColumnId === overColumnId) return;
-    setColumns((columns) => {
-      const activeIndex = columns.findIndex((c) => c.id === activeColumnId);
-      const overIndex = columns.findIndex((c) => c.id === overColumnId);
-      return arrayMove(columns, activeIndex, overIndex);
-    });
+    const activeIndex = columns.findIndex((c) => c.id === activeColumnId);
+    const overIndex = columns.findIndex((c) => c.id === overColumnId);
+
+    moveColumn(activeIndex, overIndex);
   }
 }

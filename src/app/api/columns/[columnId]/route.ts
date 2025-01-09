@@ -37,14 +37,16 @@ export async function PUT(
     return new Response('Unauthorized', { status: 401 });
   }
 
-  const { title } = await request.json();
+  const { title, boardOrder } = await request.json();
 
+  const boardOrderParsed = parseInt(boardOrder, 10);
   const newColumn = await prisma.column.update({
     where: {
       id: parseInt(columnId),
     },
     data: {
       title,
+      boardOrder: boardOrderParsed,
     },
   });
 

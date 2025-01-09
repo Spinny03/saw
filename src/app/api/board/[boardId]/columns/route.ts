@@ -44,12 +44,14 @@ export async function POST(
   }
 
   const boardIdParsed = parseInt(boardId, 10);
-  const { title } = await request.json();
+  const { title, boardOrder } = await request.json();
+  const boardOrderParsed = parseInt(boardOrder, 10);
 
   const newColumn = await prisma.column.create({
     data: {
       title,
       boardId: boardIdParsed,
+      boardOrder: boardOrderParsed,
     },
   });
 

@@ -71,6 +71,7 @@ model Board {
 
 model Column {
   id       Int    @id @default(autoincrement())
+  boardOrder Int
   title    String
   board    Board  @relation(fields: [boardId], references: [id])
   boardId  Int
@@ -83,4 +84,5 @@ model Card {
   message   String  @default("")
   columnId  Int
   column    Column  @relation(fields: [columnId], references: [id])
+  columnOrder Int
 }

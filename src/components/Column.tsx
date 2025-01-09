@@ -2,13 +2,17 @@
 
 import { useSession } from 'next-auth/react';
 import Card from './Card';
-import { useState } from 'react';
-import { Column as ColumnType } from '@prisma/client';
-import { Card as CardType } from '@prisma/client';
+import { useState, useEffect } from 'react';
+import { Column as PrismaColumn, Card as PrismaCard } from '@prisma/client';
 import ModalCard from './ModalCard';
 import { TrashIcon } from '@radix-ui/react-icons';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+
+// Estensione del tipo PrismaColumn per includere 'cards'
+interface ColumnType extends PrismaColumn {
+  cards: PrismaCard[]; // Aggiungiamo il campo 'cards' come array di Card
+}
 
 interface ColumnProps {
   readonly columnProp: ColumnType;
@@ -29,14 +33,14 @@ const editColumn = async (
       body: JSON.stringify({ title: column.title }),
     });
     if (response.ok) {
-      console.log('Card name updated');
+      console.log('Column name updated');
     } else if (response.status === 401) {
       showToast('Non autorizzato');
     } else {
-      console.error('Error updating card title');
+      console.error('Error updating column title');
     }
   } catch (error) {
-    console.error('Error updating card title:', error);
+    console.error('Error updating column title:', error);
   }
 };
 
@@ -50,8 +54,9 @@ export default function Column({
   deleteColumn,
   owner,
 }: ColumnProps) {
-  const { data: session } = useSession(); // Recupera i dati della sessione
-  const [column, setColumn] = useState<any>(columnProp);
+  const { data: session } = useSession();
+  const [column, setColumn] = useState<ColumnType>(columnProp);
+  const [cards, setCards] = useState<PrismaCard[]>(column.cards || []);
   const [title, setTitle] = useState(column.title);
   const { toast, setToast } = useToast();
 
@@ -77,7 +82,7 @@ export default function Column({
 
   const currUser = session?.user?.id;
   if (!currUser) {
-    throw new Error('User is not authenticated'); // Lancia un errore se l'ID utente non è disponibile
+    throw new Error('User is not authenticated');
   }
 
   const showToast = (message: string) => {
@@ -91,6 +96,7 @@ export default function Column({
     }
   };
 
+  // Funzione per aggiungere una carta
   const addCard = async (cardTitle: string, cardMessage: string) => {
     try {
       const response = await fetch(`/api/columns/${column.id}/cards`, {
@@ -98,15 +104,15 @@ export default function Column({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ title: cardTitle, message: cardMessage }),
+        body: JSON.stringify({
+          title: cardTitle,
+          message: cardMessage,
+          columnOrder: cards.length,
+        }),
       });
       if (response.ok) {
         const newCard = await response.json();
-        if (!column.cards) {
-          column.cards = [];
-        }
-        column.cards.push(newCard);
-        setColumn({ ...column });
+        setCards((prevCards) => [...prevCards, newCard]);
       } else {
         console.error('Error adding card');
       }
@@ -115,7 +121,8 @@ export default function Column({
     }
   };
 
-  const deleteCard = async (card: CardType) => {
+  // Funzione per eliminare una carta
+  const deleteCard = async (card: PrismaCard) => {
     try {
       const response = await fetch(
         `/api/columns/${card.columnId}/cards/${card.id}`,
@@ -124,8 +131,7 @@ export default function Column({
         }
       );
       if (response.ok) {
-        column.cards = column.cards.filter((c: CardType) => c.id !== card.id);
-        setColumn({ ...column });
+        setCards((prevCards) => prevCards.filter((c) => c.id !== card.id));
         console.log('Card deleted');
       } else {
         console.error('Error deleting card');
@@ -134,6 +140,10 @@ export default function Column({
       console.error('Error deleting card:', error);
     }
   };
+
+  useEffect(() => {
+    setCards(column.cards || []); // Aggiorna lo stato quando la colonna viene modificata
+  }, [column]);
 
   if (isDragging) {
     return (
@@ -164,21 +174,19 @@ export default function Column({
             className="w-full border-none bg-gray-200 text-lg font-bold focus:outline-none"
           />
           <button
-            onClick={() => {
-              deleteColumn(column);
-            }}
+            onClick={() => deleteColumn(column)}
             className="grey-500 rounded-md p-1 hover:bg-gray-300"
           >
             <TrashIcon />
           </button>
         </div>
         <div className="mt-2">
-          {column.cards?.map((card: any) => (
+          {cards?.map((card: PrismaCard) => (
             <Card
               key={card.id}
               card={card}
               deleteCard={deleteCard}
-              editable={owner == currUser}
+              editable={owner === currUser}
             />
           ))}
           <ModalCard addCard={addCard} />
@@ -190,12 +198,12 @@ export default function Column({
       <div key={column.id} className="rounded-md bg-gray-200 p-4">
         <h2 className="text-lg font-bold">{column.title}</h2>
         <div className="mt-2">
-          {column.cards?.map((card: any) => (
+          {cards?.map((card: PrismaCard) => (
             <Card
               key={card.id}
               card={card}
               deleteCard={deleteCard}
-              editable={owner == currUser}
+              editable={owner === currUser}
             />
           ))}
         </div>
