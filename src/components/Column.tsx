@@ -30,7 +30,10 @@ const editColumn = async (
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ title: column.title }),
+      body: JSON.stringify({
+        title: column.title,
+        boardOrder: column.boardOrder, // Assicuriamoci che boardOrder venga sempre inviato
+      }),
     });
     if (response.ok) {
       console.log('Column name updated');
@@ -59,6 +62,7 @@ export default function Column({
   const [cards, setCards] = useState<PrismaCard[]>(column.cards || []);
   const [title, setTitle] = useState(column.title);
   const { toast, setToast } = useToast();
+  const [isDraggrable, setIsDraggable] = useState(false);
 
   const {
     setNodeRef,
@@ -73,6 +77,7 @@ export default function Column({
       type: 'column',
       column,
     },
+    disabled: true,
   });
 
   const style = {
@@ -89,10 +94,19 @@ export default function Column({
     setToast({ open: true, title: message });
   };
 
+  // Funzione per gestire il blur del titolo
   const handleTitleBlur = () => {
     if (title !== column.title) {
       column.title = title;
-      editColumn(column, showToast);
+
+      // Verifica che boardOrder non sia null e assegna un valore valido se necessario
+      const updatedColumn = {
+        ...column,
+        boardOrder: column.boardOrder ?? 0, // Se boardOrder è null, lo impostiamo a 0 (o un altro valore di default)
+      };
+
+      setColumn(updatedColumn); // Aggiorniamo la colonna nello stato
+      editColumn(updatedColumn, showToast); // Inviamo la richiesta di aggiornamento
     }
   };
 

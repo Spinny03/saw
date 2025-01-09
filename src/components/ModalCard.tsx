@@ -12,13 +12,11 @@ export default function ModalCard({
   interface AddColumnForm {
     title: string;
     message: string;
-    tette: boolean;
   }
 
   const [form, setForm] = useState<AddColumnForm>({
     title: '',
     message: '',
-    tette: false,
   });
 
   return (
@@ -67,7 +65,7 @@ export default function ModalCard({
                 className="mt-2 block w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm text-gray-900 shadow-sm sm:leading-6"
                 onChange={(e) => setForm({ ...form, message: e.target.value })}
                 defaultValue={''}
-                rows={4} // Aggiungi questa proprietà per definire il numero di righe visibili
+                rows={4}
               />
             </div>
           </div>

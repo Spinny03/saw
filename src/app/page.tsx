@@ -160,17 +160,17 @@ export default function HomePage() {
                       owner={board.ownerId}
                     />
                   ))}
-                {selectedBoard && (
-                  <div className="w-full pb-4">
-                    <button
-                      onClick={addColumn}
-                      className="mt-2 w-12 rounded-md bg-blue-500 p-3 text-white"
-                    >
-                      +
-                    </button>
-                  </div>
-                )}
               </SortableContext>
+              {selectedBoard && (
+                <div className="w-full pb-4">
+                  <button
+                    onClick={addColumn}
+                    className="mt-2 w-12 rounded-md bg-blue-500 p-3 text-white"
+                  >
+                    +
+                  </button>
+                </div>
+              )}
             </div>
             {createPortal(
               <DragOverlay>
@@ -196,7 +196,6 @@ export default function HomePage() {
   function onDragStart(event: DragStartEvent) {
     if (event.active.data.current?.type === 'column') {
       setActiveColumn(event.active.data.current.column);
-      console.log('Drag started', event.active.data.current.column.boardOrder);
     }
   }
 
