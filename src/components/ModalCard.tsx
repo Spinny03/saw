@@ -6,8 +6,10 @@ import { useState } from 'react';
 
 export default function ModalCard({
   addCard,
+  setIsDraggable,
 }: {
   addCard: (title: string, message: string) => void;
+  setIsDraggable: (isDraggable: boolean) => void;
 }) {
   interface AddColumnForm {
     title: string;
@@ -20,7 +22,7 @@ export default function ModalCard({
   });
 
   return (
-    <Dialog.Root>
+    <Dialog.Root onOpenChange={(isOpen) => setIsDraggable(isOpen)}>
       <Dialog.Trigger className="mt-2 rounded bg-blue-500 p-2 text-white hover:bg-blue-700">
         Aggiungi Scheda
       </Dialog.Trigger>

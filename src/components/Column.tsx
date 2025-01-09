@@ -77,7 +77,7 @@ export default function Column({
       type: 'column',
       column,
     },
-    disabled: true,
+    disabled: isDraggrable,
   });
 
   const style = {
@@ -203,7 +203,7 @@ export default function Column({
               editable={owner === currUser}
             />
           ))}
-          <ModalCard addCard={addCard} />
+          <ModalCard addCard={addCard} setIsDraggable={setIsDraggable} />
         </div>
       </div>
     );

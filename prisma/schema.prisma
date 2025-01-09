@@ -73,7 +73,7 @@ model Column {
   id       Int    @id @default(autoincrement())
   boardOrder Int
   title    String
-  board    Board  @relation(fields: [boardId], references: [id])
+  board    Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
   boardId  Int
   cards    Card[]
 }
@@ -83,6 +83,6 @@ model Card {
   title     String
   message   String  @default("")
   columnId  Int
-  column    Column  @relation(fields: [columnId], references: [id])
+  column    Column  @relation(fields: [columnId], references: [id], onDelete: Cascade)
   columnOrder Int
 }
