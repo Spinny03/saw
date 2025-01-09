@@ -3,18 +3,21 @@
 import { useSession } from 'next-auth/react';
 import Card from './Card';
 import { useState } from 'react';
+import { Column as ColumnType } from '@prisma/client';
 import { Card as CardType } from '@prisma/client';
 import ModalCard from './ModalCard';
 import { TrashIcon } from '@radix-ui/react-icons';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface ColumnProps {
-  readonly columnProp: any;
+  readonly columnProp: ColumnType;
   readonly deleteColumn: (column: any) => void;
   owner: string;
 }
 
 const editColumn = async (
-  column: any,
+  column: ColumnType,
   showToast: (message: string) => void
 ) => {
   try {
@@ -51,6 +54,20 @@ export default function Column({
   const [column, setColumn] = useState<any>(columnProp);
   const [title, setTitle] = useState(column.title);
   const { toast, setToast } = useToast();
+
+  const { setNodeRef, attributes, listeners, transform, transition } =
+    useSortable({
+      id: column.id,
+      data: {
+        type: 'column',
+        column,
+      },
+    });
+
+  const style = {
+    transition,
+    transform: CSS.Transform.toString(transform),
+  };
 
   const currUser = session?.user?.id;
   if (!currUser) {
@@ -114,7 +131,14 @@ export default function Column({
 
   if (owner == currUser) {
     return (
-      <div key={column.id} className="rounded-md bg-gray-200 p-4">
+      <div
+        ref={setNodeRef}
+        style={style}
+        key={column.id}
+        className="rounded-md bg-gray-200 p-4"
+        {...attributes}
+        {...listeners}
+      >
         <div className="flex justify-between">
           <input
             type="text"
