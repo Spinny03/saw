@@ -13,11 +13,11 @@ export default function SideBar({ onBlockSelect }: SideBarProps) {
   const [selectedBlock, setSelectedBlock] = useState('1');
   const [blocks, setBlocks] = useState<Board[]>([]);
   const [boardName, setBoardName] = useState('');
-  const { data: session } = useSession(); // Recupera i dati della sessione
+  const { data: session } = useSession();
 
   const currUser = session?.user?.id;
   if (!currUser) {
-    throw new Error('User is not authenticated'); // Lancia un errore se l'ID utente non è disponibile
+    throw new Error('User is not authenticated');
   }
 
   const handleValueChange = (value: string) => {

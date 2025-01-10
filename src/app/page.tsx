@@ -30,6 +30,7 @@ export default function HomePage() {
   const [columns, setColumns] = useState<ColumnType[]>([]);
   const columnsIds = useMemo(() => columns.map((c) => c.id), [columns]);
   const [activeColumn, setActiveColumn] = useState<ColumnType | null>(null);
+  let lastBoard = null;
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -38,6 +39,32 @@ export default function HomePage() {
       },
     })
   );
+
+  // Carica l'ultima board selezionata al caricamento della pagina
+  useEffect(() => {
+    if (!session) return;
+
+    const loadLastSelectedBoard = async () => {
+      console.log('Loading last selected board', session.user.id);
+      try {
+        const response = await fetch(`/api/user/${session.user.id}/lastBoard`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data?.selectedBoard) {
+            setSelectedBoard(data.selectedBoard);
+            await handleBlockSelect(data.selectedBoard);
+            lastBoard = data.selectedBoard;
+          }
+        } else {
+          console.error('Error fetching last selected board');
+        }
+      } catch (error) {
+        console.error('Error loading last selected board', error);
+      }
+    };
+
+    loadLastSelectedBoard();
+  }, [session]);
 
   const handleBlockSelect = async (blockId: string) => {
     setSelectedBoard(blockId);
@@ -56,6 +83,8 @@ export default function HomePage() {
 
   const addUser = async (userId: string) => {
     if (!selectedBoard) return;
+    if (userId === session?.user.id) return;
+    if (board.users.some((user: any) => user.id === userId)) return;
     try {
       const response = await fetch(`/api/board/${selectedBoard}/users`, {
         method: 'PUT',
@@ -128,14 +157,45 @@ export default function HomePage() {
       });
   }
 
+  // Salvo l'ultima selected board
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!session) return;
+      if (selectedBoard) {
+        fetch(`/api/user/${session.user.id}/lastBoard`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ selectedBoard }),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              console.error('Error saving selected board');
+            }
+          })
+          .catch((error) => {
+            console.error('Error saving selected board', error);
+          });
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [selectedBoard]);
+
   if (session) {
     return (
       <div className="flex min-h-screen">
         <SideBar onBlockSelect={handleBlockSelect} />
+        <div>{lastBoard}</div>
         <div className="flex-1 px-5">
           {board.users && (
             <div className="flex flex-row gap-4 py-2">
-              <ModalBoard addUser={addUser} />
+              <ModalBoard addUser={addUser} currUser={session.user.id} />
               <AvatarGroup total={board.users.length} max={4}>
                 {board.users?.map((user: any) => (
                   <Avatar key={user.id} src={user.image} alt={user.name} />

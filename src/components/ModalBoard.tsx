@@ -7,8 +7,10 @@ import * as Select from '@radix-ui/react-select';
 
 export default function ModalBoard({
   addUser,
+  currUser,
 }: {
   addUser: (userId: string) => Promise<void>;
+  currUser: string;
 }) {
   interface User {
     id: string;
@@ -27,6 +29,8 @@ export default function ModalBoard({
     }
     fetchUsers();
   }, []);
+
+  const filteredUsers = users.filter((user: any) => user.id !== currUser);
 
   return (
     <Dialog.Root>
@@ -60,7 +64,7 @@ export default function ModalBoard({
                 <Select.Content className="mt-2 rounded-md bg-white shadow-lg">
                   <Select.ScrollUpButton />
                   <Select.Viewport>
-                    {users.map((user) => (
+                    {filteredUsers.map((user) => (
                       <Select.Item key={user.id} value={user.id.toString()}>
                         <Select.ItemText>
                           {' '}

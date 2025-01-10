@@ -19,6 +19,7 @@ model User {
   updatedAt     DateTime  @updatedAt
   boards        Board[]   @relation("UserBoards")
   ownedBoards   Board[]   @relation("BoardOwner")
+  lastBoardId   Int       @default(0)
 }
 
 model Account {
@@ -70,19 +71,19 @@ model Board {
 }
 
 model Column {
-  id       Int    @id @default(autoincrement())
+  id         Int    @id @default(autoincrement())
   boardOrder Int
-  title    String
-  board    Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
-  boardId  Int
-  cards    Card[]
+  title      String
+  board      Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  boardId    Int
+  cards      Card[]
 }
 
 model Card {
-  id        Int     @id @default(autoincrement())
-  title     String
-  message   String  @default("")
-  columnId  Int
-  column    Column  @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  id          Int    @id @default(autoincrement())
+  title       String
+  message     String @default("")
+  columnId    Int
+  column      Column @relation(fields: [columnId], references: [id], onDelete: Cascade)
   columnOrder Int
 }
