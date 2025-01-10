@@ -64,21 +64,15 @@ export default function Column({
   const { toast, setToast } = useToast();
   const [isDraggrable, setIsDraggable] = useState(false);
 
-  const {
-    setNodeRef,
-    attributes,
-    listeners,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
-    id: column.id,
-    data: {
-      type: 'column',
-      column,
-    },
-    disabled: isDraggrable,
-  });
+  const { setNodeRef, attributes, listeners, transform, transition } =
+    useSortable({
+      id: column.id,
+      data: {
+        type: 'column',
+        column,
+      },
+      disabled: isDraggrable,
+    });
 
   const style = {
     transition,
@@ -158,16 +152,6 @@ export default function Column({
   useEffect(() => {
     setCards(column.cards || []); // Aggiorna lo stato quando la colonna viene modificata
   }, [column]);
-
-  if (isDragging) {
-    return (
-      <div
-        ref={setNodeRef}
-        style={style}
-        className="rounded-md border-2 border-gray-400 bg-gray-200 p-4 opacity-60"
-      ></div>
-    );
-  }
 
   if (owner == currUser) {
     return (

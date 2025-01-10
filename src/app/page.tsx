@@ -232,19 +232,6 @@ export default function HomePage() {
                 </div>
               )}
             </div>
-            {createPortal(
-              <DragOverlay>
-                {activeColumn && (
-                  <Column
-                    key={activeColumn.id}
-                    columnProp={activeColumn}
-                    deleteColumn={deleteColumn}
-                    owner={board.ownerId}
-                  />
-                )}
-              </DragOverlay>,
-              document.body
-            )}
           </DndContext>
         </div>
       </div>
