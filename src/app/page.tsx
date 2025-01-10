@@ -10,14 +10,12 @@ import { Column as PrismaColumn, Card as PrismaCard } from '@prisma/client';
 import {
   DndContext,
   DragEndEvent,
-  DragOverlay,
   DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
 import { arrayMove, SortableContext } from '@dnd-kit/sortable';
-import { createPortal } from 'react-dom';
 
 interface ColumnType extends PrismaColumn {
   cards: PrismaCard[];
@@ -30,7 +28,6 @@ export default function HomePage() {
   const [columns, setColumns] = useState<ColumnType[]>([]);
   const columnsIds = useMemo(() => columns.map((c) => c.id), [columns]);
   const [activeColumn, setActiveColumn] = useState<ColumnType | null>(null);
-  let lastBoard = null;
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -40,26 +37,14 @@ export default function HomePage() {
     })
   );
 
-  // Carica l'ultima board selezionata al caricamento della pagina
   useEffect(() => {
     if (!session) return;
 
-    const loadLastSelectedBoard = async () => {
-      console.log('Loading last selected board', session.user.id);
-      try {
-        const response = await fetch(`/api/user/${session.user.id}/lastBoard`);
-        if (response.ok) {
-          const data = await response.json();
-          if (data?.selectedBoard) {
-            setSelectedBoard(data.selectedBoard);
-            await handleBlockSelect(data.selectedBoard);
-            lastBoard = data.selectedBoard;
-          }
-        } else {
-          console.error('Error fetching last selected board');
-        }
-      } catch (error) {
-        console.error('Error loading last selected board', error);
+    const loadLastSelectedBoard = () => {
+      const storedBoard = localStorage.getItem('selectedBoard');
+      if (storedBoard) {
+        setSelectedBoard(storedBoard);
+        handleBlockSelect(storedBoard);
       }
     };
 
@@ -157,30 +142,18 @@ export default function HomePage() {
       });
   }
 
-  // Salvo l'ultima selected board
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (!session) return;
       if (selectedBoard) {
-        fetch(`/api/user/${session.user.id}/lastBoard`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ selectedBoard }),
-        })
-          .then((response) => {
-            if (!response.ok) {
-              console.error('Error saving selected board');
-            }
-          })
-          .catch((error) => {
-            console.error('Error saving selected board', error);
-          });
+        // Salva la board selezionata nel localStorage
+        localStorage.setItem('selectedBoard', selectedBoard);
+        console.log('Saving selected board in localStorage:', selectedBoard);
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('beforeunload', handleBeforeUnload, {
+      capture: true,
+    });
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
@@ -190,8 +163,11 @@ export default function HomePage() {
   if (session) {
     return (
       <div className="flex min-h-screen">
-        <SideBar onBlockSelect={handleBlockSelect} />
-        <div>{lastBoard}</div>
+        {selectedBoard}
+        <SideBar
+          onBlockSelect={handleBlockSelect}
+          initialBlock={selectedBoard ?? ''}
+        />
         <div className="flex-1 px-5">
           {board.users && (
             <div className="flex flex-row gap-4 py-2">
@@ -211,7 +187,7 @@ export default function HomePage() {
             <div className="flex flex-row gap-4">
               <SortableContext items={columnsIds}>
                 {columns
-                  .toSorted((a, b) => a.boardOrder - b.boardOrder) // Ordina le colonne in base al boardOrder
+                  .toSorted((a, b) => a.boardOrder - b.boardOrder)
                   .map((column: ColumnType) => (
                     <Column
                       key={column.id}

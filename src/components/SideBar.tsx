@@ -7,10 +7,11 @@ import { Board } from '@prisma/client';
 
 interface SideBarProps {
   readonly onBlockSelect: (blockId: string) => void;
+  readonly initialBlock: string;
 }
 
-export default function SideBar({ onBlockSelect }: SideBarProps) {
-  const [selectedBlock, setSelectedBlock] = useState('1');
+export default function SideBar({ onBlockSelect, initialBlock }: SideBarProps) {
+  const [selectedBlock, setSelectedBlock] = useState<string>(initialBlock);
   const [blocks, setBlocks] = useState<Board[]>([]);
   const [boardName, setBoardName] = useState('');
   const { data: session } = useSession();

@@ -19,7 +19,6 @@ model User {
   updatedAt     DateTime  @updatedAt
   boards        Board[]   @relation("UserBoards")
   ownedBoards   Board[]   @relation("BoardOwner")
-  lastBoardId   Int       @default(0)
 }
 
 model Account {
