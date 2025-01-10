@@ -73,7 +73,7 @@ export default function ModalCard({
           </div>
           <Dialog.Close
             onClick={() => {
-              addCard(form.title, form.message);
+              addCard(form.title || 'New Card', form.message);
             }}
             className="mt-2 rounded-md bg-blue-500 px-4 py-2 text-white"
           >
