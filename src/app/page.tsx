@@ -163,12 +163,11 @@ export default function HomePage() {
   if (session) {
     return (
       <div className="flex min-h-screen">
-        {selectedBoard}
         <SideBar
           onBlockSelect={handleBlockSelect}
           initialBlock={selectedBoard ?? ''}
         />
-        <div className="flex-1 px-5">
+        <div className="mb-20 flex-1 px-5">
           {board.users && (
             <div className="flex flex-row gap-4 py-2">
               <ModalBoard addUser={addUser} currUser={session.user.id} />
