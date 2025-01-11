@@ -2,11 +2,11 @@
 
 import { useSession } from 'next-auth/react';
 import Card from './Card';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Column as PrismaColumn, Card as PrismaCard } from '@prisma/client';
 import ModalCard from './ModalCard';
 import { TrashIcon } from '@radix-ui/react-icons';
-import { useSortable } from '@dnd-kit/sortable';
+import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 // Estensione del tipo PrismaColumn per includere 'cards'
@@ -63,6 +63,10 @@ export default function Column({
   const [title, setTitle] = useState(column.title);
   const { toast, setToast } = useToast();
   const [isDraggrable, setIsDraggable] = useState(false);
+
+  const cardIds = useMemo(() => {
+    return cards.map((c) => c.id);
+  }, [cards]);
 
   const { setNodeRef, attributes, listeners, transform, transition } =
     useSortable({
@@ -179,14 +183,16 @@ export default function Column({
           </button>
         </div>
         <div className="mt-2">
-          {cards?.map((card: PrismaCard) => (
-            <Card
-              key={card.id}
-              card={card}
-              deleteCard={deleteCard}
-              editable={owner === currUser}
-            />
-          ))}
+          <SortableContext items={cardIds}>
+            {cards?.map((card: PrismaCard) => (
+              <Card
+                key={card.id}
+                card={card}
+                deleteCard={deleteCard}
+                editable={owner === currUser}
+              />
+            ))}
+          </SortableContext>
           <ModalCard addCard={addCard} setIsDraggable={setIsDraggable} />
         </div>
       </div>
