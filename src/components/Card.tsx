@@ -1,9 +1,7 @@
 'use client';
-import { useSortable } from '@dnd-kit/sortable';
 import { Card as CardType } from '@prisma/client';
 import { Cross1Icon } from '@radix-ui/react-icons';
 import { useState } from 'react';
-import { CSS } from '@dnd-kit/utilities';
 
 interface CardProps {
   readonly card: CardType;
@@ -48,20 +46,6 @@ export default function Card({ card, deleteCard, editable }: CardProps) {
   const [message, setMessage] = useState(card.message);
   const { toast, setToast } = useToast();
 
-  const { setNodeRef, attributes, listeners, transform, transition } =
-    useSortable({
-      id: card.id,
-      data: {
-        type: 'column',
-        card,
-      },
-    });
-
-  const style = {
-    transition,
-    transform: CSS.Transform.toString(transform),
-  };
-
   const showToast = (message: string) => {
     setToast({ open: true, title: message });
   };
@@ -82,14 +66,7 @@ export default function Card({ card, deleteCard, editable }: CardProps) {
 
   if (editable) {
     return (
-      <div
-        ref={setNodeRef}
-        style={style}
-        {...attributes}
-        {...listeners}
-        key={card.id}
-        className="mb-2 rounded-md bg-white p-2 shadow"
-      >
+      <div key={card.id} className="mb-2 rounded-md bg-white p-2 shadow">
         <button
           className="float-right rounded-md p-1 text-black hover:bg-gray-300"
           onClick={() => {
