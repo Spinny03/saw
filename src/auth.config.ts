@@ -11,6 +11,7 @@ declare module 'next-auth' {
     user: {
       address: string;
       id: string;
+      lastBoard: string;
     } & DefaultSession['user'];
   }
 }
@@ -40,6 +41,7 @@ export const authOptions: AuthOptions = {
     session({ session, user }) {
       if (session.user) {
         session.user.id = user.id;
+        session.user.lastBoard = user.lastBoard;
       }
       return session;
     },

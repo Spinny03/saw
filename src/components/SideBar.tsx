@@ -60,7 +60,7 @@ export default function SideBar({ onBlockSelect, initialBlock }: SideBarProps) {
   }, []); // Ricarica le board quando boardCreated cambia
 
   return (
-    <div className="w-25 flex h-screen flex-col items-center overflow-y-auto bg-gray-100 p-4">
+    <div className="w-25 flex h-screen flex-shrink-0 flex-col items-center overflow-y-auto bg-gray-100 p-4">
       <h1>
         <strong>My Boards</strong>
       </h1>

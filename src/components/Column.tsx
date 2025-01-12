@@ -157,9 +157,9 @@ export default function Column({
     return (
       <div
         ref={setNodeRef}
-        style={style}
         key={column.id}
-        className="rounded-md bg-gray-200 p-4"
+        className="m-1 flex-shrink-0 rounded-md bg-gray-200 p-4"
+        style={style}
         {...attributes}
         {...listeners}
       >

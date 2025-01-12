@@ -41,7 +41,7 @@ export default function HomePage() {
     if (!session) return;
 
     const loadLastSelectedBoard = () => {
-      const storedBoard = localStorage.getItem('selectedBoard');
+      const storedBoard = session.user.lastBoard;
       if (storedBoard) {
         setSelectedBoard(storedBoard);
         handleBlockSelect(storedBoard);
@@ -144,9 +144,9 @@ export default function HomePage() {
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!session) return;
       if (selectedBoard) {
-        // Salva la board selezionata nel localStorage
-        localStorage.setItem('selectedBoard', selectedBoard);
+        session.user.lastBoard = selectedBoard;
         console.log('Saving selected board in localStorage:', selectedBoard);
       }
     };
@@ -162,12 +162,12 @@ export default function HomePage() {
 
   if (session) {
     return (
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen overflow-x-hidden">
         <SideBar
           onBlockSelect={handleBlockSelect}
           initialBlock={selectedBoard ?? ''}
         />
-        <div className="mb-20 flex-1 px-5">
+        <div className="mb-20 flex-1 overflow-x-auto px-5">
           {board.users && (
             <div className="flex flex-row gap-4 py-2">
               <ModalBoard addUser={addUser} currUser={session.user.id} />
@@ -183,7 +183,7 @@ export default function HomePage() {
             onDragEnd={onDragEnd}
             sensors={sensors}
           >
-            <div className="flex flex-row gap-4">
+            <div className="flex flex-row gap-4 overflow-x-auto">
               <SortableContext items={columnsIds}>
                 {columns
                   .toSorted((a, b) => a.boardOrder - b.boardOrder)
