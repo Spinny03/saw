@@ -41,7 +41,7 @@ export const authOptions: AuthOptions = {
     session({ session, user }) {
       if (session.user) {
         session.user.id = user.id;
-        session.user.lastBoard = user.lastBoard;
+        session.user.lastBoard = user.lastBoard; //da finire
       }
       return session;
     },

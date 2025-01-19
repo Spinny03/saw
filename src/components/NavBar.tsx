@@ -26,24 +26,28 @@ const Navbar: React.FC = () => {
       >
         CoralApp
       </Toolbar.Button>
-
       {/* Search Bar or Icon */}
-      <div className="mx-4 flex-1">
-        <div className="hidden sm:block">
-          <input
-            type="text"
-            placeholder="Cerca..."
-            className="w-full rounded-md bg-gray-700 px-4 py-2 text-white focus:outline-none focus:ring focus:ring-blue-500"
-          />
+      {session && (
+        <div className="flex flex-1 justify-end">
+          <div className="mx-44 hidden w-full sm:block">
+            <button
+              className="w-full rounded-md bg-gray-700 px-4 py-2 text-left text-gray-400 focus:outline-none focus:ring focus:ring-blue-500"
+              onClick={openSearchModal}
+            >
+              Cerca...
+            </button>
+          </div>
+          <div className="block sm:hidden">
+            <button className="p-2 text-gray-400 hover:text-white focus:outline-none">
+              <MagnifyingGlassIcon
+                className="h-6 w-6 text-gray-100"
+                style={{ strokeWidth: 3 }}
+                onClick={openSearchModal}
+              />
+            </button>
+          </div>
         </div>
-        <div className="block sm:hidden">
-          <MagnifyingGlassIcon
-            className="h-6 w-6 cursor-pointer"
-            onClick={openSearchModal}
-          />
-        </div>
-      </div>
-
+      )}
       {session ? (
         /* Profile Icon with Dropdown Menu */
         <DropdownMenu.Root>
