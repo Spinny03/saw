@@ -11,16 +11,16 @@ model User {
   id            String    @id @default(cuid())
   name          String?
   email         String    @unique
-  emailVerified DateTime?
-  password      String?
-  image         String?
-  lastBoard String?
-  accounts      Account[]
-  sessions      Session[]
   createdAt     DateTime  @default(now())
+  image         String?
+  emailVerified DateTime?
   updatedAt     DateTime  @updatedAt
-  boards        Board[]   @relation("UserBoards")
+  lastBoard     String?
+  password      String?
+  accounts      Account[]
   ownedBoards   Board[]   @relation("BoardOwner")
+  sessions      Session[]
+  boards        Board[]   @relation("UserBoards")
 }
 
 model Account {
@@ -35,11 +35,9 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([provider, providerAccountId])
 }
@@ -48,10 +46,9 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model VerificationToken {
@@ -65,26 +62,27 @@ model VerificationToken {
 model Board {
   id      Int      @id @default(autoincrement())
   title   String
-  owner   User     @relation(fields: [ownerId], references: [id], name: "BoardOwner")
   ownerId String
-  users   User[]   @relation("UserBoards")
+  owner   User     @relation("BoardOwner", fields: [ownerId], references: [id])
   columns Column[]
+  users   User[]   @relation("UserBoards")
 }
 
 model Column {
   id         Int    @id @default(autoincrement())
-  boardOrder Int
   title      String
-  board      Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
   boardId    Int
+  boardOrder Int
   cards      Card[]
+  board      Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
 }
 
 model Card {
-  id          Int    @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   title       String
-  message     String @default("")
   columnId    Int
-  column      Column @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  message     String   @default("")
   columnOrder Int
+  deadline    DateTime?
+  column      Column   @relation(fields: [columnId], references: [id], onDelete: Cascade)
 }

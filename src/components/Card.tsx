@@ -1,6 +1,6 @@
 'use client';
 import { Card as CardType } from '@prisma/client';
-import { Cross1Icon } from '@radix-ui/react-icons';
+import { Cross1Icon, BellIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 
 interface CardProps {
@@ -21,7 +21,11 @@ const editCard = async (
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ title: card.title, message: card.message }),
+        body: JSON.stringify({
+          title: card.title,
+          message: card.message,
+          deadline: card.deadline,
+        }),
       }
     );
     if (response.ok) {
@@ -44,6 +48,8 @@ const useToast = () => {
 export default function Card({ card, deleteCard, editable }: CardProps) {
   const [title, setTitle] = useState(card.title);
   const [message, setMessage] = useState(card.message);
+  const [deadline, setDeadline] = useState(card.deadline);
+  const [showDeadline, setShowDeadline] = useState(false);
   const { toast, setToast } = useToast();
 
   const showToast = (message: string) => {
@@ -88,6 +94,31 @@ export default function Card({ card, deleteCard, editable }: CardProps) {
           onBlur={handleMessageBlur}
           className="mt-2 w-full resize-none border-none focus:outline-none"
         />
+        <span className="flex items-center">
+          {showDeadline && (
+            <div className="flex space-x-2">
+              <input
+                type="date"
+                value={card.deadline ? card.deadline.getDate() : ''}
+              />
+              <input
+                type="time"
+                value={card.deadline ? card.deadline.getTime() : ''}
+              />
+            </div>
+          )}
+          <button
+            className="ml-auto"
+            onClick={() => setShowDeadline((prev) => !prev)}
+          >
+            <BellIcon
+              className={`h-5 w-5 ${
+                showDeadline ? 'text-gray-900' : 'text-gray-300'
+              }`}
+              style={{ strokeWidth: 2 }}
+            />
+          </button>
+        </span>
       </div>
     );
   } else {
