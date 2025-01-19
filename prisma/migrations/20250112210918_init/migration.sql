@@ -1,2 +1,2 @@
 -- AlterTable
-ALTER TABLE "User" ADD COLUMN     "lastBaord" TEXT;
+ALTER TABLE "User" ADD COLUMN     "lastBoard" TEXT;
