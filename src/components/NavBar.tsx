@@ -1,4 +1,10 @@
 'use client';
+<<<<<<< HEAD
+=======
+
+import React, { useState, useEffect, useRef } from 'react';
+
+>>>>>>> 88202b349a443cb7f53528633575d941243df4cb
 import React, { useState, useEffect, useRef } from 'react';
 import * as Toolbar from '@radix-ui/react-toolbar';
 import * as Avatar from '@radix-ui/react-avatar';
@@ -43,6 +49,11 @@ const Navbar: React.FC = () => {
 
   const inputRef = useRef<HTMLInputElement>(null); // Create a ref for the input field
 
+<<<<<<< HEAD
+=======
+  const inputRef = useRef<HTMLInputElement>(null); // Create a ref for the input field
+
+>>>>>>> 88202b349a443cb7f53528633575d941243df4cb
   const openSearchModal = () => setIsSearchModalOpen(true);
   const closeSearchModal = () => setIsSearchModalOpen(false);
 
