@@ -183,7 +183,7 @@ export default function HomePage() {
             onDragEnd={onDragEnd}
             sensors={sensors}
           >
-            <div className="flex flex-row gap-4 overflow-x-auto">
+            <div className="flex flex-col gap-4 overflow-y-auto overflow-x-visible lg:flex-row lg:overflow-x-auto lg:overflow-y-visible">
               <SortableContext items={columnsIds}>
                 {columns
                   .toSorted((a, b) => a.boardOrder - b.boardOrder)
