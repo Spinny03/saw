@@ -20,13 +20,14 @@ export async function POST(request: Request) {
     16
   );
   const imageUrl = `https://ui-avatars.com/api/?name=${body.name}+${body.surname}&background=random&color=${randomColorForAvatar}`;
-
+  console.log(imageUrl);
   const user = await prisma.user.create({
     data: {
       email: body.email,
       name: body.name,
       surname: body.surname,
       password: body.password,
+      image: imageUrl,
     },
   });
 

@@ -23,7 +23,26 @@ const LogIn = () => {
       alert('Passwords do not match');
       return;
     }
-    await signIn('credentials', { email, password, firstName, lastName });
+    /* chiama l'endpoint di registrazione */
+    const response = await fetch('/api/user', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        name: firstName,
+        surname: lastName,
+      }),
+    });
+    if (response.ok) {
+      await signIn('credentials', { email, password });
+    } else if (response.status === 409) {
+      alert('User already exists');
+    } else if (response.status === 400) {
+      alert('Invalid data');
+    }
   };
 
   return (

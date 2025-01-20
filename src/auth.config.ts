@@ -88,14 +88,14 @@ export const authOptions: AuthOptions = {
       console.log('Session:', session);
       if (session.user && token.sub) {
         session.user.id = token.sub;
-        session.user.lastBoard = await prisma.user
-          .findFirst({
-            where: { id: token.sub },
-          })
-          .then((user) => user?.lastBoard ?? '')
-          .catch((error) => {
-            return '';
-          });
+        let user = await prisma.user.findFirst({
+          where: { id: token.sub },
+        });
+        if (!user) {
+          return session;
+        }
+        session.user.lastBoard = user.lastBoard || '';
+        session.user.image = user.image || '';
       }
       console.log('Session:', session);
       return session;
