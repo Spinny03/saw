@@ -69,7 +69,7 @@ export default function LandingPage() {
           {' '}
           {/* Modifica qui: items-center -> items-start */}
           <img
-            src="https://via.placeholder.com/600x400"
+            src="/memoji.png"
             alt="CoralApp Example"
             className="mr-8 w-full rounded-lg shadow-lg lg:mb-0 lg:w-1/2"
           />
