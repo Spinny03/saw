@@ -19,7 +19,11 @@ const LogIn = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Implement sign-up logic here
+    if (password !== confirmPassword) {
+      alert('Passwords do not match');
+      return;
+    }
+    await signIn('credentials', { email, password, firstName, lastName });
   };
 
   return (

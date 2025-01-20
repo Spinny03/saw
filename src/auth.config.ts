@@ -20,7 +20,7 @@ declare module 'next-auth' {
 export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
-    strategy: 'database' as const,
+    strategy: 'jwt' as const,
   },
   providers: [
     GoogleProvider({
@@ -33,18 +33,42 @@ export const authOptions: AuthOptions = {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials) {
-        if (!credentials) throw new Error('Credentials not provided');
-        const user = await prisma.user.findFirst({
-          where: {
-            email: credentials.email,
-            password: credentials.password,
-          },
-        });
-        if (user) {
-          return user;
-        } else {
-          return null;
+      authorize: async (credentials) => {
+        try {
+          const email = credentials?.email as string;
+          const password = credentials?.password as string;
+
+          if (!email || !password) {
+            throw new Error('Email o password mancanti');
+          }
+
+          const user = await prisma.user.findFirst({
+            where: {
+              email,
+            },
+          });
+
+          if (!user) {
+            throw new Error('Credenziali non corrette');
+          } else {
+            const valid = true; //await compare(password, user.password);
+            if (!valid) {
+              throw new Error('Credenziali non corrette');
+            }
+          }
+
+          return {
+            email: user.email,
+            name: user.name,
+            surname: user.surname,
+            id: user.id,
+          };
+        } catch (error) {
+          if (error instanceof Error) {
+            throw new Error(error.message);
+          } else {
+            throw new Error('Errore sconosciuto');
+          }
         }
       },
     }),
@@ -60,23 +84,29 @@ export const authOptions: AuthOptions = {
     },
   },
   callbacks: {
-    async session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
+    async session({ session, token }) {
+      console.log('Session:', session);
+      if (session.user && token.sub) {
+        session.user.id = token.sub;
         session.user.lastBoard = await prisma.user
           .findFirst({
-            where: { id: user.id },
+            where: { id: token.sub },
           })
           .then((user) => user?.lastBoard ?? '')
           .catch((error) => {
             return '';
           });
       }
+      console.log('Session:', session);
       return session;
     },
   },
   events: {
     async signIn(message) {
+      console.log('Sign In', message);
+      if (message.account?.type === 'credentials') {
+        return;
+      }
       const userId = message.user.id;
       const imageUrl = message.user.image;
 
