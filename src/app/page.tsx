@@ -16,6 +16,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { arrayMove, SortableContext } from '@dnd-kit/sortable';
+import ChatButton from '@/components/ChatButton';
 
 interface ColumnType extends PrismaColumn {
   cards: PrismaCard[];
@@ -236,6 +237,7 @@ export default function HomePage() {
             </div>
           </DndContext>
         </div>
+        {selectedBoard && <ChatButton selectedBoard={selectedBoard} />}
       </div>
     );
   } else {
