@@ -14,7 +14,11 @@ const LogIn = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    await signIn('credentials', { email, password });
+    try {
+      await signIn('credentials', { email, password });
+    } catch (error) {
+      alert('Invalid credentials');
+    }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {

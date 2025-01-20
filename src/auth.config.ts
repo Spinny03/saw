@@ -4,7 +4,7 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '@/prisma';
 import type { AuthOptions, DefaultSession } from 'next-auth';
 import { put } from '@vercel/blob';
-
+import bcrypt from 'bcrypt';
 const fs = require('fs');
 const path = require('path');
 declare module 'next-auth' {
@@ -15,6 +15,18 @@ declare module 'next-auth' {
       lastBoard: string;
     } & DefaultSession['user'];
   }
+}
+
+function compare(password: string, hash: string) {
+  return password === hash;
+  return new Promise((resolve, reject) => {
+    bcrypt.compare(password, hash, (err: Error, result: boolean) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(result);
+    });
+  });
 }
 
 export const authOptions: AuthOptions = {
@@ -51,7 +63,10 @@ export const authOptions: AuthOptions = {
           if (!user) {
             throw new Error('Credenziali non corrette');
           } else {
-            const valid = true; //await compare(password, user.password);
+            if (!user.password) {
+              throw new Error('Credenziali non corrette');
+            }
+            const valid = await compare(password, user.password);
             if (!valid) {
               throw new Error('Credenziali non corrette');
             }
