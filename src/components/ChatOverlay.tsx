@@ -71,12 +71,18 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({
     }
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleSend();
+    }
+  };
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   return (
-    <div className="fixed bottom-20 right-5 z-50 h-96 w-72 overflow-hidden rounded-lg bg-white shadow-lg">
+    <div className="fixed bottom-20 right-5 z-50 h-96 w-96 overflow-hidden rounded-lg bg-white shadow-lg">
       <div className="flex items-center justify-between bg-blue-500 p-2 text-white">
         <h4 className="m-0">Chat</h4>
         <button
@@ -120,6 +126,7 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
           className="flex-grow rounded border p-2"
           placeholder="Type a message..."
         />
