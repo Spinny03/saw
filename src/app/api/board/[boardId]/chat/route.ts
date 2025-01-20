@@ -6,7 +6,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { boardId: string } }
 ) {
-  const { boardId } = params;
+  const { boardId } = await params;
 
   const userId = await getUserId();
   if (!userId) {
@@ -37,7 +37,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { boardId: string } }
 ) {
-  const { boardId } = params;
+  const { boardId } = await params;
 
   const userId = await getUserId();
   if (!userId) {
