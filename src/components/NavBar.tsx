@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+
+import React, { useState, useEffect, useRef } from 'react';
 import * as Toolbar from '@radix-ui/react-toolbar';
 import * as Avatar from '@radix-ui/react-avatar';
 import { useRouter } from 'next/navigation';
@@ -44,6 +46,8 @@ const Navbar: React.FC = () => {
 
   const inputRef = useRef<HTMLInputElement>(null); // Create a ref for the input field
 
+  const inputRef = useRef<HTMLInputElement>(null); // Create a ref for the input field
+
   const openSearchModal = () => setIsSearchModalOpen(true);
   const closeSearchModal = () => setIsSearchModalOpen(false);
 
@@ -76,8 +80,10 @@ const Navbar: React.FC = () => {
 
   const highlightSearchQuery = (text: string, query: string) => {
     const parts = text.split(new RegExp(`(${query})`, 'gi'));
+    const parts = text.split(new RegExp(`(${query})`, 'gi'));
     return parts.map((part, index) =>
       part.toLowerCase() === query.toLowerCase() ? (
+        <strong key={index}>{part}</strong>
         <strong key={index}>{part}</strong>
       ) : (
         part
@@ -86,6 +92,26 @@ const Navbar: React.FC = () => {
   };
 
   const goToBoard = (boardId: number) => {
+    closeSearchModal();
+    sessionStorage.setItem('selectedBoard', boardId.toString());
+    window.dispatchEvent(new Event('storage'));
+    console.log('Navigating to board:', boardId);
+  };
+
+  // Focus the input when the modal is opened
+  useEffect(() => {
+    if (isSearchModalOpen && inputRef.current) {
+      inputRef.current.focus(); // Focus the input field
+      inputRef.current.select();
+    }
+  }, [isSearchModalOpen]);
+
+  // Check if search results are empty
+  const isSearchEmpty = !(
+    searchResults.columns.length > 0 ||
+    searchResults.cardTitles.length > 0 ||
+    searchResults.cardMessages.length > 0
+  );
     closeSearchModal();
     sessionStorage.setItem('selectedBoard', boardId.toString());
     window.dispatchEvent(new Event('storage'));
@@ -116,6 +142,7 @@ const Navbar: React.FC = () => {
         CoralApp
       </Toolbar.Button>
 
+
       {session && (
         <div className="flex flex-1 justify-end">
           <div className="mx-40 hidden w-full md:block">
@@ -137,6 +164,7 @@ const Navbar: React.FC = () => {
           </div>
         </div>
       )}
+
 
       {session ? (
         <DropdownMenu.Root>
@@ -166,7 +194,14 @@ const Navbar: React.FC = () => {
         </DropdownMenu.Root>
       ) : (
         <LoginDialog />
+        <button
+          className="mr-2 rounded-md bg-blue-500 px-4 py-2 text-white"
+          onClick={() => router.push('/api/auth/signin')}
+        >
+          LogIn/SingUp
+        </button>
       )}
+
 
       <Dialog.Root open={isSearchModalOpen} onOpenChange={setIsSearchModalOpen}>
         <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50" />
@@ -183,6 +218,7 @@ const Navbar: React.FC = () => {
             </span>
             <input
               ref={inputRef} // Attach the ref to the input
+              ref={inputRef} // Attach the ref to the input
               type="text"
               placeholder="Cerca..."
               className="mt-4 w-full rounded-md bg-gray-200 px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500"
@@ -193,6 +229,70 @@ const Navbar: React.FC = () => {
               <div className="mt-2 text-gray-400">Cerca in corso...</div>
             )}
             <div className="mt-4 max-h-60 overflow-y-auto">
+              {isSearchEmpty ? (
+                <div className="text-center text-gray-500">
+                  Nessun Risultato trovato
+                </div>
+              ) : (
+                <>
+                  {searchResults.columns &&
+                    searchResults.columns.length > 0 && (
+                      <div>
+                        <h3 className="font-bold text-gray-800">Colonne</h3>
+                        <ul>
+                          {searchResults.columns.map((column) => (
+                            <li
+                              key={column.id}
+                              className="cursor-pointer py-2 text-gray-600"
+                              onClick={() => goToBoard(column.boardId)}
+                            >
+                              {highlightSearchQuery(column.title, searchQuery)}{' '}
+                              (Board ID: {column.boardId})
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  {searchResults.cardTitles &&
+                    searchResults.cardTitles.length > 0 && (
+                      <div className="mt-4">
+                        <h3 className="font-bold text-gray-800">Card Titoli</h3>
+                        <ul>
+                          {searchResults.cardTitles.map((card) => (
+                            <li
+                              key={card.id}
+                              className="cursor-pointer py-2 text-gray-600"
+                              onClick={() => goToBoard(card.boardId)}
+                            >
+                              {highlightSearchQuery(card.title, searchQuery)}{' '}
+                              (Board ID: {card.boardId})
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  {searchResults.cardMessages &&
+                    searchResults.cardMessages.length > 0 && (
+                      <div className="mt-4">
+                        <h3 className="font-bold text-gray-800">
+                          Messaggi Card
+                        </h3>
+                        <ul>
+                          {searchResults.cardMessages.map((card) => (
+                            <li
+                              key={card.id}
+                              className="cursor-pointer py-2 text-gray-600"
+                              onClick={() => goToBoard(card.boardId)}
+                            >
+                              {highlightSearchQuery(card.message, searchQuery)}{' '}
+                              (Board ID: {card.boardId})
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                </>
+              )}
               {isSearchEmpty ? (
                 <div className="text-center text-gray-500">
                   Nessun Risultato trovato
