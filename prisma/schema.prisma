@@ -21,6 +21,7 @@ model User {
   ownedBoards   Board[]   @relation("BoardOwner")
   sessions      Session[]
   boards        Board[]   @relation("UserBoards")
+  messages      Message[] 
 }
 
 model Account {
@@ -66,6 +67,16 @@ model Board {
   owner   User     @relation("BoardOwner", fields: [ownerId], references: [id])
   columns Column[]
   users   User[]   @relation("UserBoards")
+  messages Message[]
+}
+
+model Message {
+  id      Int      @id @default(autoincrement())
+  boardId Int
+  userId  String
+  message String
+  user    User     @relation(fields: [userId], references: [id])
+  board   Board    @relation(fields: [boardId], references: [id])
 }
 
 model Column {

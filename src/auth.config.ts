@@ -42,7 +42,7 @@ export const authOptions: AuthOptions = {
           },
         });
         if (user) {
-          return { id: user.id, email: user.email };
+          return user;
         } else {
           return null;
         }

@@ -150,10 +150,10 @@ const Navbar: React.FC = () => {
       ) : (
         /* Login Button */
         <button
-          className="rounded-md bg-blue-500 px-4 py-2 text-white"
+          className="mr-2 rounded-md bg-blue-500 px-4 py-2 text-white"
           onClick={() => router.push('/api/auth/signin')}
         >
-          Login
+          LogIn/SingUp
         </button>
       )}
       {/* Search Modal */}
