@@ -1,11 +1,12 @@
 'use client';
 import { Card as CardType } from '@prisma/client';
-import { Cross1Icon } from '@radix-ui/react-icons';
+import { Cross1Icon, BellIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 
 interface CardProps {
   readonly card: CardType;
   readonly deleteCard: (card: CardType) => void;
+  readonly editable: boolean;
 }
 
 const editCard = async (
@@ -20,7 +21,11 @@ const editCard = async (
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ title: card.title, message: card.message }),
+        body: JSON.stringify({
+          title: card.title,
+          message: card.message,
+          deadline: card.deadline,
+        }),
       }
     );
     if (response.ok) {
@@ -40,9 +45,11 @@ const useToast = () => {
   return { toast, setToast };
 };
 
-export default function Card({ card, deleteCard }: CardProps) {
+export default function Card({ card, deleteCard, editable }: CardProps) {
   const [title, setTitle] = useState(card.title);
   const [message, setMessage] = useState(card.message);
+  const [deadline, setDeadline] = useState(card.deadline);
+  const [showDeadline, setShowDeadline] = useState(false);
   const { toast, setToast } = useToast();
 
   const showToast = (message: string) => {
@@ -63,29 +70,63 @@ export default function Card({ card, deleteCard }: CardProps) {
     }
   };
 
-  return (
-    <div key={card.id} className="mb-2 rounded-md bg-white p-2 shadow">
-      <button
-        className="float-right text-black"
-        onClick={() => {
-          deleteCard(card);
-        }}
-      >
-        <Cross1Icon />
-      </button>
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        onBlur={handleTitleBlur}
-        className="w-full border-none text-lg font-bold focus:outline-none"
-      />
-      <textarea
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        onBlur={handleMessageBlur}
-        className="mt-2 w-full resize-none border-none focus:outline-none"
-      />
-    </div>
-  );
+  if (editable) {
+    return (
+      <div key={card.id} className="mb-2 rounded-md bg-white p-2 shadow">
+        <button
+          className="float-right rounded-md p-1 text-black hover:bg-gray-300"
+          onClick={() => {
+            deleteCard(card);
+          }}
+        >
+          <Cross1Icon />
+        </button>
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          onBlur={handleTitleBlur}
+          className="w-full border-none text-lg font-bold focus:outline-none"
+        />
+        <textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onBlur={handleMessageBlur}
+          className="mt-2 w-full resize-none border-none focus:outline-none"
+        />
+        <span className="flex items-center">
+          {showDeadline && (
+            <div className="flex space-x-2">
+              <input
+                type="date"
+                value={card.deadline ? card.deadline.getDate() : ''}
+              />
+              <input
+                type="time"
+                value={card.deadline ? card.deadline.getTime() : ''}
+              />
+            </div>
+          )}
+          <button
+            className="ml-auto"
+            onClick={() => setShowDeadline((prev) => !prev)}
+          >
+            <BellIcon
+              className={`h-5 w-5 ${
+                showDeadline ? 'text-gray-900' : 'text-gray-300'
+              }`}
+              style={{ strokeWidth: 2 }}
+            />
+          </button>
+        </span>
+      </div>
+    );
+  } else {
+    return (
+      <div key={card.id} className="mb-2 rounded-md bg-white p-2 shadow">
+        <h3 className="text-lg font-bold">{card.title}</h3>
+        <p className="mt-2">{card.message}</p>
+      </div>
+    );
+  }
 }

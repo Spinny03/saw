@@ -36,13 +36,16 @@ export async function POST(
     return new Response('Unauthorized', { status: 401 });
   }
 
-  const { title, message } = await request.json();
+  const { title, message, columnOrder } = await request.json();
+  const columnOrderParsed = parseInt(columnOrder, 10);
 
   const newCard = await prisma.card.create({
     data: {
       title,
       message,
       columnId: parseInt(columnId),
+      columnOrder: columnOrderParsed,
+      deadline: null,
     },
   });
 

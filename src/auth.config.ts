@@ -1,4 +1,5 @@
 import GoogleProvider from 'next-auth/providers/google';
+import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '@/prisma';
 import type { AuthOptions, DefaultSession } from 'next-auth';
@@ -11,6 +12,7 @@ declare module 'next-auth' {
     user: {
       address: string;
       id: string;
+      lastBoard: string;
     } & DefaultSession['user'];
   }
 }
@@ -18,12 +20,57 @@ declare module 'next-auth' {
 export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
-    strategy: 'database' as const,
+    strategy: 'jwt' as const,
   },
   providers: [
     GoogleProvider({
       clientId: process.env.AUTH_GOOGLE_ID!,
       clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+    }),
+    CredentialsProvider({
+      name: 'Credentials',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+      },
+      authorize: async (credentials) => {
+        try {
+          const email = credentials?.email as string;
+          const password = credentials?.password as string;
+
+          if (!email || !password) {
+            throw new Error('Email o password mancanti');
+          }
+
+          const user = await prisma.user.findFirst({
+            where: {
+              email,
+            },
+          });
+
+          if (!user) {
+            throw new Error('Credenziali non corrette');
+          } else {
+            const valid = true; //await compare(password, user.password);
+            if (!valid) {
+              throw new Error('Credenziali non corrette');
+            }
+          }
+
+          return {
+            email: user.email,
+            name: user.name,
+            surname: user.surname,
+            id: user.id,
+          };
+        } catch (error) {
+          if (error instanceof Error) {
+            throw new Error(error.message);
+          } else {
+            throw new Error('Errore sconosciuto');
+          }
+        }
+      },
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
@@ -37,15 +84,29 @@ export const authOptions: AuthOptions = {
     },
   },
   callbacks: {
-    session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
+    async session({ session, token }) {
+      console.log('Session:', session);
+      if (session.user && token.sub) {
+        session.user.id = token.sub;
+        let user = await prisma.user.findFirst({
+          where: { id: token.sub },
+        });
+        if (!user) {
+          return session;
+        }
+        session.user.lastBoard = user.lastBoard || '';
+        session.user.image = user.image || '';
       }
+      console.log('Session:', session);
       return session;
     },
   },
   events: {
     async signIn(message) {
+      console.log('Sign In', message);
+      if (message.account?.type === 'credentials') {
+        return;
+      }
       const userId = message.user.id;
       const imageUrl = message.user.image;
 

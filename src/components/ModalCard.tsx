@@ -6,24 +6,24 @@ import { useState } from 'react';
 
 export default function ModalCard({
   addCard,
+  setIsDraggable,
 }: {
   addCard: (title: string, message: string) => void;
+  setIsDraggable: (isDraggable: boolean) => void;
 }) {
   interface AddColumnForm {
     title: string;
     message: string;
-    tette: boolean;
   }
 
   const [form, setForm] = useState<AddColumnForm>({
     title: '',
     message: '',
-    tette: false,
   });
 
   return (
-    <Dialog.Root>
-      <Dialog.Trigger className="mt-2 rounded bg-blue-500 p-2 text-white">
+    <Dialog.Root onOpenChange={(isOpen) => setIsDraggable(isOpen)}>
+      <Dialog.Trigger className="mt-2 rounded bg-blue-500 p-2 text-white hover:bg-blue-700">
         Aggiungi Scheda
       </Dialog.Trigger>
       <Dialog.Portal>
@@ -61,19 +61,19 @@ export default function ModalCard({
               >
                 Contenuto
               </label>
-              <input
+              <textarea
                 id="input-contenuto"
                 autoFocus
                 className="mt-2 block w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm text-gray-900 shadow-sm sm:leading-6"
-                type="text"
                 onChange={(e) => setForm({ ...form, message: e.target.value })}
                 defaultValue={''}
+                rows={4}
               />
             </div>
           </div>
           <Dialog.Close
             onClick={() => {
-              addCard(form.title, form.message);
+              addCard(form.title || 'New Card', form.message);
             }}
             className="mt-2 rounded-md bg-blue-500 px-4 py-2 text-white"
           >
