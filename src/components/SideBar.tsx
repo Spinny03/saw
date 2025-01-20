@@ -59,6 +59,11 @@ export default function SideBar({ onBlockSelect, initialBlock }: SideBarProps) {
     fetchBlocks();
   }, []); // Ricarica le board quando boardCreated cambia
 
+  // Sync selectedBlock state with the initialBlock prop when it changes
+  useEffect(() => {
+    setSelectedBlock(initialBlock);
+  }, [initialBlock]);
+
   return (
     <div className="w-25 flex h-screen flex-shrink-0 flex-col items-center overflow-y-auto bg-gray-100 p-4">
       <h1>
@@ -102,6 +107,8 @@ export default function SideBar({ onBlockSelect, initialBlock }: SideBarProps) {
         <h1 className="mb-4 mt-4">
           <strong>Host Boards</strong>
         </h1>
+        {blocks.filter((block: Board) => block.ownerId !== currUser).length ===
+          0 && <>...</>}
         <Root
           type="single"
           defaultValue="1"
