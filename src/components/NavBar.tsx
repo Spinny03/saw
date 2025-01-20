@@ -7,6 +7,7 @@ import { useSession, signOut } from 'next-auth/react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import LoginDialog from './LogInDialog';
 
 // Definisci il tipo per i risultati della ricerca
 type SearchResult = {
@@ -148,13 +149,7 @@ const Navbar: React.FC = () => {
           </DropdownMenu.Content>
         </DropdownMenu.Root>
       ) : (
-        /* Login Button */
-        <button
-          className="mr-2 rounded-md bg-blue-500 px-4 py-2 text-white"
-          onClick={() => router.push('/api/auth/signin')}
-        >
-          LogIn/SingUp
-        </button>
+        <LoginDialog />
       )}
       {/* Search Modal */}
       <Dialog.Root open={isSearchModalOpen} onOpenChange={setIsSearchModalOpen}>
