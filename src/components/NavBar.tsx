@@ -1,5 +1,6 @@
 'use client';
-import React, { useState } from 'react';
+
+import React, { useState, useEffect, useRef } from 'react';
 import * as Toolbar from '@radix-ui/react-toolbar';
 import * as Avatar from '@radix-ui/react-avatar';
 import { useRouter } from 'next/navigation';
@@ -9,7 +10,6 @@ import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import LoginDialog from './LogInDialog';
 
-// Definisci il tipo per i risultati della ricerca
 type SearchResult = {
   columns: Array<{
     id: number;
@@ -42,6 +42,8 @@ const Navbar: React.FC = () => {
   });
   const [searchQuery, setSearchQuery] = useState('');
 
+  const inputRef = useRef<HTMLInputElement>(null); // Create a ref for the input field
+
   const openSearchModal = () => setIsSearchModalOpen(true);
   const closeSearchModal = () => setIsSearchModalOpen(false);
 
@@ -72,34 +74,48 @@ const Navbar: React.FC = () => {
     }
   };
 
-  // Funzione per evidenziare la parola cercata
   const highlightSearchQuery = (text: string, query: string) => {
-    const parts = text.split(new RegExp(`(${query})`, 'gi')); // Dividi il testo in base alla query
+    const parts = text.split(new RegExp(`(${query})`, 'gi'));
     return parts.map((part, index) =>
       part.toLowerCase() === query.toLowerCase() ? (
-        <strong key={index}>{part}</strong> // Rendi in grassetto la parola cercata
+        <strong key={index}>{part}</strong>
       ) : (
         part
       )
     );
   };
 
-  // Funzione per andare alla board
   const goToBoard = (boardId: number) => {
-    // Sostituisci questa funzione con la tua logica per navigare alla board
-    router.push(`/board/${boardId}`);
+    closeSearchModal();
+    sessionStorage.setItem('selectedBoard', boardId.toString());
+    window.dispatchEvent(new Event('storage'));
+    console.log('Navigating to board:', boardId);
   };
+
+  // Focus the input when the modal is opened
+  useEffect(() => {
+    if (isSearchModalOpen && inputRef.current) {
+      inputRef.current.focus(); // Focus the input field
+      inputRef.current.select();
+    }
+  }, [isSearchModalOpen]);
+
+  // Check if search results are empty
+  const isSearchEmpty = !(
+    searchResults.columns.length > 0 ||
+    searchResults.cardTitles.length > 0 ||
+    searchResults.cardMessages.length > 0
+  );
 
   return (
     <Toolbar.Root className="flex items-center justify-between bg-gray-800 px-6 py-4 text-white">
-      {/* Logo */}
       <Toolbar.Button
         className="text-lg font-bold focus:outline-none"
         onClick={() => router.push('/')}
       >
         CoralApp
       </Toolbar.Button>
-      {/* Search Bar or Icon */}
+
       {session && (
         <div className="flex flex-1 justify-end">
           <div className="mx-40 hidden w-full md:block">
@@ -121,8 +137,8 @@ const Navbar: React.FC = () => {
           </div>
         </div>
       )}
+
       {session ? (
-        /* Profile Icon with Dropdown Menu */
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
             <Avatar.Root className="h-10 w-10 cursor-pointer rounded-full">
@@ -151,7 +167,7 @@ const Navbar: React.FC = () => {
       ) : (
         <LoginDialog />
       )}
-      {/* Search Modal */}
+
       <Dialog.Root open={isSearchModalOpen} onOpenChange={setIsSearchModalOpen}>
         <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50" />
         <Dialog.Content className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -166,6 +182,7 @@ const Navbar: React.FC = () => {
               </button>
             </span>
             <input
+              ref={inputRef} // Attach the ref to the input
               type="text"
               placeholder="Cerca..."
               className="mt-4 w-full rounded-md bg-gray-200 px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500"
@@ -175,61 +192,71 @@ const Navbar: React.FC = () => {
             {isSearching && (
               <div className="mt-2 text-gray-400">Cerca in corso...</div>
             )}
-            {/* Display Search Results */}
             <div className="mt-4 max-h-60 overflow-y-auto">
-              {searchResults.columns && searchResults.columns.length > 0 && (
-                <div>
-                  <h3 className="font-bold text-gray-800">Colonne</h3>
-                  <ul>
-                    {searchResults.columns.map((column) => (
-                      <li
-                        key={column.id}
-                        className="cursor-pointer py-2 text-gray-600"
-                        onClick={() => goToBoard(column.boardId)} // Chiamata alla funzione con boardId
-                      >
-                        {highlightSearchQuery(column.title, searchQuery)} (Board
-                        ID: {column.boardId})
-                      </li>
-                    ))}
-                  </ul>
+              {isSearchEmpty ? (
+                <div className="text-center text-gray-500">
+                  Nessun Risultato trovato
                 </div>
+              ) : (
+                <>
+                  {searchResults.columns &&
+                    searchResults.columns.length > 0 && (
+                      <div>
+                        <h3 className="font-bold text-gray-800">Colonne</h3>
+                        <ul>
+                          {searchResults.columns.map((column) => (
+                            <li
+                              key={column.id}
+                              className="cursor-pointer py-2 text-gray-600"
+                              onClick={() => goToBoard(column.boardId)}
+                            >
+                              {highlightSearchQuery(column.title, searchQuery)}{' '}
+                              (Board ID: {column.boardId})
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  {searchResults.cardTitles &&
+                    searchResults.cardTitles.length > 0 && (
+                      <div className="mt-4">
+                        <h3 className="font-bold text-gray-800">Card Titoli</h3>
+                        <ul>
+                          {searchResults.cardTitles.map((card) => (
+                            <li
+                              key={card.id}
+                              className="cursor-pointer py-2 text-gray-600"
+                              onClick={() => goToBoard(card.boardId)}
+                            >
+                              {highlightSearchQuery(card.title, searchQuery)}{' '}
+                              (Board ID: {card.boardId})
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  {searchResults.cardMessages &&
+                    searchResults.cardMessages.length > 0 && (
+                      <div className="mt-4">
+                        <h3 className="font-bold text-gray-800">
+                          Messaggi Card
+                        </h3>
+                        <ul>
+                          {searchResults.cardMessages.map((card) => (
+                            <li
+                              key={card.id}
+                              className="cursor-pointer py-2 text-gray-600"
+                              onClick={() => goToBoard(card.boardId)}
+                            >
+                              {highlightSearchQuery(card.message, searchQuery)}{' '}
+                              (Board ID: {card.boardId})
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                </>
               )}
-              {searchResults.cardTitles &&
-                searchResults.cardTitles.length > 0 && (
-                  <div className="mt-4">
-                    <h3 className="font-bold text-gray-800">Card Titoli</h3>
-                    <ul>
-                      {searchResults.cardTitles.map((card) => (
-                        <li
-                          key={card.id}
-                          className="cursor-pointer py-2 text-gray-600"
-                          onClick={() => goToBoard(card.boardId)} // Chiamata alla funzione con boardId
-                        >
-                          {highlightSearchQuery(card.title, searchQuery)} (Board
-                          ID: {card.boardId})
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              {searchResults.cardMessages &&
-                searchResults.cardMessages.length > 0 && (
-                  <div className="mt-4">
-                    <h3 className="font-bold text-gray-800">Messaggi Card</h3>
-                    <ul>
-                      {searchResults.cardMessages.map((card) => (
-                        <li
-                          key={card.id}
-                          className="cursor-pointer py-2 text-gray-600"
-                          onClick={() => goToBoard(card.boardId)} // Chiamata alla funzione con boardId
-                        >
-                          {highlightSearchQuery(card.message, searchQuery)}{' '}
-                          (Board ID: {card.boardId})
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
             </div>
           </div>
         </Dialog.Content>

@@ -4,7 +4,7 @@ import SideBar from '../components/SideBar';
 import { useEffect, useMemo, useState } from 'react';
 import Column from '../components/Column';
 import { Avatar, AvatarGroup } from '@mui/material';
-import ModalBoard from '../components/ModalBoard';
+import ModalBoard from '@/components/ModalBoard';
 import LandingPage from '@/components/LandingPage';
 import { Column as PrismaColumn, Card as PrismaCard } from '@prisma/client';
 import {
@@ -41,10 +41,18 @@ export default function HomePage() {
     if (!session) return;
 
     const loadLastSelectedBoard = () => {
-      const storedBoard = session.user.lastBoard;
+      // Attempt to load selected board from sessionStorage
+      const storedBoard = sessionStorage.getItem('selectedBoard');
       if (storedBoard) {
         setSelectedBoard(storedBoard);
         handleBlockSelect(storedBoard);
+      } else {
+        // If no stored board, fallback to session user data
+        const userBoard = session.user.lastBoard;
+        if (userBoard) {
+          setSelectedBoard(userBoard);
+          handleBlockSelect(userBoard);
+        }
       }
     };
 
@@ -61,6 +69,7 @@ export default function HomePage() {
         (a: ColumnType, b: ColumnType) => a.boardOrder - b.boardOrder
       );
       setColumns(sortedColumns);
+      sessionStorage.setItem('selectedBoard', blockId); // Sync with sessionStorage
     } catch (error) {
       console.error('Error fetching columns:', error);
     }
@@ -146,8 +155,8 @@ export default function HomePage() {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (!session) return;
       if (selectedBoard) {
-        session.user.lastBoard = selectedBoard;
-        console.log('Saving selected board in localStorage:', selectedBoard);
+        sessionStorage.setItem('selectedBoard', selectedBoard); // Sync with sessionStorage
+        console.log('Saving selected board in sessionStorage:', selectedBoard);
       }
     };
 
@@ -159,6 +168,24 @@ export default function HomePage() {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [selectedBoard]);
+
+  // Automatically update selectedBoard from sessionStorage when it changes
+  useEffect(() => {
+    const onStorageChange = () => {
+      const storedBoard = sessionStorage.getItem('selectedBoard');
+      console.log('Session board changed', storedBoard);
+      if (storedBoard !== selectedBoard) {
+        setSelectedBoard(storedBoard);
+        handleBlockSelect(storedBoard || ''); // Handle empty string or fallback
+      }
+    };
+
+    console.log('SessionStorage Event Listener Added!');
+    window.addEventListener('storage', onStorageChange);
+    return () => {
+      window.removeEventListener('storage', onStorageChange);
+    };
+  }, []);
 
   if (session) {
     return (
