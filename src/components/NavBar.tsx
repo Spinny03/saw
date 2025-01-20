@@ -169,92 +169,108 @@ const Navbar: React.FC = () => {
       )}
 
       <Dialog.Root open={isSearchModalOpen} onOpenChange={setIsSearchModalOpen}>
-        <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50" />
-        <Dialog.Content className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-md rounded-md bg-gray-400 p-6">
+        <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300" />
+        <Dialog.Content className="fixed inset-0 z-50 flex items-center justify-center p-6">
+          <div className="w-full max-w-lg transform-gpu rounded-xl bg-white p-6 shadow-xl transition-transform">
             <span>
-              <Dialog.Title className="text-lg font-bold">Cerca</Dialog.Title>
+              <Dialog.Title className="mb-4 text-2xl font-semibold text-gray-800">
+                Cerca
+              </Dialog.Title>
               <button
-                className="mt-4 rounded-md bg-blue-500 px-4 py-2 text-black"
+                className="absolute right-4 top-4 text-gray-500 hover:text-gray-700 focus:outline-none"
                 onClick={closeSearchModal}
               >
-                Chiudi
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
               </button>
             </span>
+
             <input
-              ref={inputRef} // Attach the ref to the input
+              ref={inputRef}
               type="text"
               placeholder="Cerca..."
-              className="mt-4 w-full rounded-md bg-gray-200 px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500"
+              className="mb-4 w-full rounded-md bg-gray-100 px-4 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
               onKeyDown={handleKeyDown}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
             {isSearching && (
-              <div className="mt-2 text-gray-400">Cerca in corso...</div>
+              <div className="text-center text-gray-500">Cerca in corso...</div>
             )}
-            <div className="mt-4 max-h-60 overflow-y-auto">
+
+            <div className="mt-4 max-h-72 space-y-4 overflow-y-auto">
               {isSearchEmpty ? (
                 <div className="text-center text-gray-500">
                   Nessun Risultato trovato
                 </div>
               ) : (
                 <>
-                  {searchResults.columns &&
-                    searchResults.columns.length > 0 && (
-                      <div>
-                        <h3 className="font-bold text-gray-800">Colonne</h3>
-                        <ul>
-                          {searchResults.columns.map((column) => (
-                            <li
-                              key={column.id}
-                              className="cursor-pointer py-2 text-gray-600"
-                              onClick={() => goToBoard(column.boardId)}
-                            >
-                              {highlightSearchQuery(column.title, searchQuery)}{' '}
-                              (Board ID: {column.boardId})
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  {searchResults.cardTitles &&
-                    searchResults.cardTitles.length > 0 && (
-                      <div className="mt-4">
-                        <h3 className="font-bold text-gray-800">Card Titoli</h3>
-                        <ul>
-                          {searchResults.cardTitles.map((card) => (
-                            <li
-                              key={card.id}
-                              className="cursor-pointer py-2 text-gray-600"
-                              onClick={() => goToBoard(card.boardId)}
-                            >
-                              {highlightSearchQuery(card.title, searchQuery)}{' '}
-                              (Board ID: {card.boardId})
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  {searchResults.cardMessages &&
-                    searchResults.cardMessages.length > 0 && (
-                      <div className="mt-4">
-                        <h3 className="font-bold text-gray-800">
-                          Messaggi Card
-                        </h3>
-                        <ul>
-                          {searchResults.cardMessages.map((card) => (
-                            <li
-                              key={card.id}
-                              className="cursor-pointer py-2 text-gray-600"
-                              onClick={() => goToBoard(card.boardId)}
-                            >
-                              {highlightSearchQuery(card.message, searchQuery)}{' '}
-                              (Board ID: {card.boardId})
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
+                  {searchResults.columns.length > 0 && (
+                    <div>
+                      <h3 className="font-semibold text-gray-800">Colonne</h3>
+                      <ul>
+                        {searchResults.columns.map((column) => (
+                          <li
+                            key={column.id}
+                            className="cursor-pointer py-2 text-gray-600 hover:text-blue-600"
+                            onClick={() => goToBoard(column.boardId)}
+                          >
+                            {highlightSearchQuery(column.title, searchQuery)}{' '}
+                            (Board ID: {column.boardId})
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {searchResults.cardTitles.length > 0 && (
+                    <div>
+                      <h3 className="font-semibold text-gray-800">
+                        Card Titoli
+                      </h3>
+                      <ul>
+                        {searchResults.cardTitles.map((card) => (
+                          <li
+                            key={card.id}
+                            className="cursor-pointer py-2 text-gray-600 hover:text-blue-600"
+                            onClick={() => goToBoard(card.boardId)}
+                          >
+                            {highlightSearchQuery(card.title, searchQuery)}{' '}
+                            (Board ID: {card.boardId})
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {searchResults.cardMessages.length > 0 && (
+                    <div>
+                      <h3 className="font-semibold text-gray-800">
+                        Messaggi Card
+                      </h3>
+                      <ul>
+                        {searchResults.cardMessages.map((card) => (
+                          <li
+                            key={card.id}
+                            className="cursor-pointer py-2 text-gray-600 hover:text-blue-600"
+                            onClick={() => goToBoard(card.boardId)}
+                          >
+                            {highlightSearchQuery(card.message, searchQuery)}{' '}
+                            (Board ID: {card.boardId})
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </>
               )}
             </div>
