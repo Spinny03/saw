@@ -81,8 +81,8 @@ export default function ModalBoard({
   return (
     <Dialog.Root>
       {clickable ? (
-        <Dialog.Trigger>
-          <AvatarGroup total={board.users.length} max={4}>
+        <Dialog.Trigger className="z-10">
+          <AvatarGroup className="z-10" total={board.users.length} max={4}>
             {board.users?.map((user: any) => (
               <Avatar key={user.id} src={user.image} alt={user.name} />
             ))}
@@ -90,7 +90,7 @@ export default function ModalBoard({
         </Dialog.Trigger>
       ) : (
         <div>
-          <AvatarGroup total={board.users.length} max={4}>
+          <AvatarGroup className="z-10" total={board.users.length} max={4}>
             {board.users?.map((user: any) => (
               <Avatar key={user.id} src={user.image} alt={user.name} />
             ))}

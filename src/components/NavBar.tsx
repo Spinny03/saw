@@ -187,7 +187,7 @@ const Navbar: React.FC = () => {
               />
             </Avatar.Root>
           </DropdownMenu.Trigger>
-          <DropdownMenu.Content className="rounded-md bg-black p-2 shadow-lg">
+          <DropdownMenu.Content className="z-50 rounded-md bg-black p-2 shadow-lg">
             <DropdownMenu.Item
               className="cursor-pointer px-4 py-2 hover:bg-gray-200"
               onClick={() => router.push('/profile')}
