@@ -3,7 +3,6 @@ import { useSession } from 'next-auth/react';
 import SideBar from '../components/SideBar';
 import { useEffect, useMemo, useState } from 'react';
 import Column from '../components/Column';
-import { Avatar, AvatarGroup } from '@mui/material';
 import ModalBoard from '@/components/ModalBoard';
 import LandingPage from '@/components/LandingPage';
 import { Column as PrismaColumn, Card as PrismaCard } from '@prisma/client';
@@ -76,29 +75,47 @@ export default function HomePage() {
     }
   };
 
-  const addUser = async (userId: string) => {
+  const editUsers = async (usersToAdd: string[], usersToRemove: string[]) => {
     if (!selectedBoard) return;
-    if (userId === session?.user.id) return;
-    if (board.users.some((user: any) => user.id === userId)) return;
+
+    // Ensure that the current user is not being added or removed
+    if (!session) return;
+    if (
+      usersToAdd.includes(session.user.id) ||
+      usersToRemove.includes(session.user.id)
+    ) {
+      console.error('Cannot add or remove the current user.');
+      return;
+    }
+
     try {
+      // Send the PUT request to update users
       const response = await fetch(`/api/board/${selectedBoard}/users`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId }),
+        body: JSON.stringify({ usersToAdd, usersToRemove }),
       });
+
       if (response.ok) {
-        const newUser = await response.json();
+        const updatedUsers = await response.json();
+
+        // Update the board state with the new users
         setBoard((prevBoard: any) => ({
           ...prevBoard,
-          users: [...prevBoard.users, newUser],
+          users: prevBoard.users
+            .filter((user: any) => !usersToRemove.includes(user.id)) // Remove users that were in usersToRemove
+            .concat(updatedUsers), // Add the newly added users
         }));
+
+        // Force reload the modal with updated board users
+        handleBlockSelect(selectedBoard); // Re-fetch board and users
       } else {
-        console.error('Error adding user');
+        console.error('Error updating users');
       }
     } catch (error) {
-      console.error('Error adding user:', error);
+      console.error('Error updating users:', error);
     }
   };
 
@@ -198,12 +215,12 @@ export default function HomePage() {
         <div className="mb-20 flex-1 overflow-x-auto px-5">
           {board.users && (
             <div className="flex flex-row gap-4 py-2">
-              <ModalBoard addUser={addUser} currUser={session.user.id} />
-              <AvatarGroup total={board.users.length} max={4}>
-                {board.users?.map((user: any) => (
-                  <Avatar key={user.id} src={user.image} alt={user.name} />
-                ))}
-              </AvatarGroup>
+              Utenti:
+              <ModalBoard
+                editUsers={editUsers}
+                currUser={session.user.id}
+                board={board}
+              />
             </div>
           )}
           <DndContext

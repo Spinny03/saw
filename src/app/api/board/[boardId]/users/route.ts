@@ -12,34 +12,60 @@ export async function PUT(
     return new Response('Unauthorized', { status: 401 });
   }
 
-  const { userId } = await request.json();
+  // Parse the body
+  const {
+    usersToAdd,
+    usersToRemove,
+  }: { usersToAdd: string[]; usersToRemove: string[] } = await request.json();
 
-  const user = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-  });
-  if (!user) {
-    return new Response('User not found', { status: 404 });
+  // Validate user IDs in usersToAdd
+  const validUsersToAdd = await Promise.all(
+    usersToAdd.map(async (userId) => {
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+      return user ? user : null;
+    })
+  );
+
+  if (validUsersToAdd.includes(null)) {
+    return new Response('One or more users to add were not found', {
+      status: 404,
+    });
   }
 
+  // Validate user IDs in usersToRemove
+  const validUsersToRemove = await Promise.all(
+    usersToRemove.map(async (userId) => {
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+      return user ? user : null;
+    })
+  );
+
+  if (validUsersToRemove.includes(null)) {
+    return new Response('One or more users to remove were not found', {
+      status: 404,
+    });
+  }
+
+  // Update the board with the new users to add
   await prisma.board.update({
     where: {
       id: parseInt(boardId),
     },
     data: {
       users: {
-        connect: {
-          id: userId,
-        },
+        connect: usersToAdd.map((userId) => ({ id: userId })),
+        disconnect: usersToRemove.map((userId) => ({ id: userId })),
       },
     },
   });
 
-  return new Response(JSON.stringify(user), {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+  return new Response(
+    JSON.stringify({ message: 'Board updated successfully' }),
+    {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  );
 }
