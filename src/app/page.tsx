@@ -8,13 +8,11 @@ import { useRouter } from 'next/navigation';
 import { Column as PrismaColumn, Card as PrismaCard } from '@prisma/client';
 import {
   DndContext,
-  DragEndEvent,
-  DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { arrayMove, SortableContext } from '@dnd-kit/sortable';
+import { SortableContext } from '@dnd-kit/sortable';
 import ChatButton from '@/components/ChatButton';
 
 interface ColumnType extends PrismaColumn {
@@ -23,13 +21,15 @@ interface ColumnType extends PrismaColumn {
 
 export default function HomePage() {
   const router = useRouter();
-  const { data: session, status } = useSession(); // Added session status
+  const { data: session, status } = useSession();
   const [selectedBoard, setSelectedBoard] = useState<string | null>(null);
   const [board, setBoard] = useState<any>([]);
+  const [boardTitle, setBoardTitle] = useState<string>(''); // Board title state
   const [columns, setColumns] = useState<ColumnType[]>([]);
   const columnsIds = useMemo(() => columns.map((c) => c.id), [columns]);
-  const [activeColumn, setActiveColumn] = useState<ColumnType | null>(null);
-  const [loading, setLoading] = useState(true); // Added loading state
+
+  const [sidebarTrigger, setSidebarTrigger] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -41,16 +41,15 @@ export default function HomePage() {
 
   useEffect(() => {
     if (status === 'loading') {
-      setLoading(true); // Show loading screen while session is loading
+      setLoading(true);
       return;
     }
 
     if (status === 'unauthenticated') {
-      router.push('/landing'); // Redirect to login page if not authenticated
+      router.push('/landing');
       return;
     }
 
-    // Session is authenticated, proceed with loading the board
     const loadLastSelectedBoard = () => {
       const storedBoard = sessionStorage.getItem('selectedBoard');
       if (storedBoard) {
@@ -59,14 +58,13 @@ export default function HomePage() {
       } else {
         const userBoard = session?.user.lastBoard;
         if (userBoard) {
-          setSelectedBoard(userBoard);
           handleBlockSelect(userBoard);
         }
       }
     };
 
     loadLastSelectedBoard();
-    setLoading(false); // Hide loading screen once session is ready
+    setLoading(false);
   }, [status, session, router]);
 
   const handleBlockSelect = async (blockId: string) => {
@@ -75,11 +73,12 @@ export default function HomePage() {
       const response = await fetch(`/api/board/${blockId}`);
       const data = await response.json();
       setBoard(data || []);
+      setBoardTitle(data?.title || ''); // Initialize the board title
       const sortedColumns = (data.columns || []).sort(
         (a: ColumnType, b: ColumnType) => a.boardOrder - b.boardOrder
       );
       setColumns(sortedColumns);
-      sessionStorage.setItem('selectedBoard', blockId); // Sync with sessionStorage
+      sessionStorage.setItem('selectedBoard', blockId);
     } catch (error) {
       console.error('Error fetching columns:', error);
     }
@@ -110,15 +109,40 @@ export default function HomePage() {
         setBoard((prevBoard: any) => ({
           ...prevBoard,
           users: prevBoard.users
-            .filter((user: any) => !usersToRemove.includes(user.id)) // Remove users
-            .concat(updatedUsers), // Add newly added users
+            .filter((user: any) => !usersToRemove.includes(user.id))
+            .concat(updatedUsers),
         }));
-        handleBlockSelect(selectedBoard); // Re-fetch board and users
+        handleBlockSelect(selectedBoard);
       } else {
         console.error('Error updating users');
       }
     } catch (error) {
       console.error('Error updating users:', error);
+    }
+  };
+
+  const updateBoardTitle = async (newTitle: string) => {
+    try {
+      const response = await fetch(`/api/board/${selectedBoard}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ title: newTitle }),
+      });
+      if (!response.ok) {
+        console.error('Failed to update the board title.');
+      }
+      setSidebarTrigger((prev) => prev + 1);
+    } catch (error) {
+      console.error('Error updating board title:', error);
+    }
+  };
+
+  const handleTitleBlur = () => {
+    if (boardTitle !== board.title) {
+      setBoard((prevBoard: any) => ({ ...prevBoard, title: boardTitle }));
+      updateBoardTitle(boardTitle);
     }
   };
 
@@ -150,64 +174,8 @@ export default function HomePage() {
     }
   };
 
-  function deleteColumn(column: ColumnType): void {
-    fetch(`/api/columns/${column.id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((response) => {
-        if (response.ok) {
-          setColumns((prevColumns) =>
-            prevColumns.filter((c) => c.id !== column.id)
-          );
-          console.log('Column deleted');
-        } else {
-          console.error('Error deleting column');
-        }
-      })
-      .catch((error) => {
-        console.error('Error deleting column:', error);
-      });
-  }
-
-  useEffect(() => {
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (!session) return;
-      if (selectedBoard) {
-        sessionStorage.setItem('selectedBoard', selectedBoard);
-        console.log('Saving selected board in sessionStorage:', selectedBoard);
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload, {
-      capture: true,
-    });
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [selectedBoard]);
-
-  useEffect(() => {
-    const onStorageChange = () => {
-      const storedBoard = sessionStorage.getItem('selectedBoard');
-      console.log('Session board changed', storedBoard);
-      if (storedBoard !== selectedBoard) {
-        setSelectedBoard(storedBoard);
-        handleBlockSelect(storedBoard ?? ''); // Handle empty string or fallback
-      }
-    };
-
-    window.addEventListener('storage', onStorageChange);
-    return () => {
-      window.removeEventListener('storage', onStorageChange);
-    };
-  }, []);
-
   if (loading) {
-    return <div>Loading...</div>; // Show loading message while waiting for session
+    return <div>Loading...</div>;
   }
 
   if (session) {
@@ -216,23 +184,39 @@ export default function HomePage() {
         <SideBar
           onBlockSelect={handleBlockSelect}
           initialBlock={selectedBoard ?? ''}
+          sidebarTrigger={sidebarTrigger}
         />
-        <div className="mb-20 flex-1 overflow-x-auto px-5">
-          {board.users && (
-            <div className="flex flex-row gap-4 py-2">
-              Utenti:
-              <ModalBoard
-                editUsers={editUsers}
-                currUser={session.user.id}
-                board={board}
-              />
-            </div>
-          )}
-          <DndContext
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
-            sensors={sensors}
-          >
+        <div className="mb-20 flex-1 px-5">
+          <div className="flex items-center justify-between">
+            {/* Editable Board Title */}
+            {selectedBoard && (
+              <div className="flex items-center rounded-lg bg-white p-4 shadow-md">
+                <input
+                  type="text"
+                  value={boardTitle}
+                  onChange={(e) => setBoardTitle(e.target.value)}
+                  onBlur={handleTitleBlur}
+                  className="rounded-md border-none bg-transparent px-2 text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            )}
+
+            {/* "Utenti" Section */}
+            {board.users && (
+              <div className="flex items-center gap-2 rounded-lg bg-white p-4 shadow-md">
+                <span className="text-sm font-medium text-gray-700">
+                  👥 Utenti:
+                </span>
+                <ModalBoard
+                  editUsers={editUsers}
+                  currUser={session.user.id}
+                  board={board}
+                />
+              </div>
+            )}
+          </div>
+
+          <DndContext sensors={sensors}>
             <div className="flex flex-col gap-4 overflow-y-auto overflow-x-visible lg:flex-row lg:overflow-x-auto lg:overflow-y-visible">
               <SortableContext items={columnsIds}>
                 {columns
@@ -241,7 +225,7 @@ export default function HomePage() {
                     <Column
                       key={column.id}
                       columnProp={column}
-                      deleteColumn={deleteColumn}
+                      deleteColumn={() => {}}
                       owner={board.ownerId}
                     />
                   ))}
@@ -263,45 +247,6 @@ export default function HomePage() {
       </div>
     );
   } else {
-    return <>suca</>; // Handle unauthenticated users (this part can be refined)
-  }
-
-  function onDragStart(event: DragStartEvent) {
-    if (event.active.data.current?.type === 'column') {
-      setActiveColumn(event.active.data.current.column);
-    }
-  }
-
-  function moveColumn(fromIndex: number, toIndex: number) {
-    setColumns((columns) => {
-      const updatedColumns = arrayMove(columns, fromIndex, toIndex);
-      updatedColumns.forEach((column, index) => {
-        if (column.boardOrder !== index) {
-          column.boardOrder = index;
-          fetch(`/api/columns/${column.id}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ boardOrder: index }),
-          });
-        }
-      });
-      return updatedColumns;
-    });
-  }
-
-  function onDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-
-    if (!over) return;
-    const activeColumnId = active.id;
-    const overColumnId = over.id;
-
-    if (activeColumnId === overColumnId) return;
-    const activeIndex = columns.findIndex((c) => c.id === activeColumnId);
-    const overIndex = columns.findIndex((c) => c.id === overColumnId);
-
-    moveColumn(activeIndex, overIndex);
+    return <div>Unauthenticated</div>;
   }
 }

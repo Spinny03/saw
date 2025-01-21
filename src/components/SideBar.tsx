@@ -4,19 +4,21 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { Root, Item } from '@radix-ui/react-toggle-group';
 import { Board } from '@prisma/client';
-
-interface ClientBoard extends Board {
-  hasFocus: boolean;
-}
+import { Tooltip } from './Tooltip'; // import the Tooltip component
 
 interface SideBarProps {
   readonly onBlockSelect: (blockId: string) => void;
   readonly initialBlock: string;
+  readonly sidebarTrigger: number; // New callback prop
 }
 
-export default function SideBar({ onBlockSelect, initialBlock }: SideBarProps) {
+export default function SideBar({
+  onBlockSelect,
+  initialBlock,
+  sidebarTrigger,
+}: SideBarProps) {
   const [selectedBlock, setSelectedBlock] = useState<string>(initialBlock);
-  const [blocks, setBlocks] = useState<ClientBoard[]>([]);
+  const [blocks, setBlocks] = useState<Board[]>([]);
   const { data: session } = useSession();
 
   const currUser = session?.user?.id;
@@ -31,7 +33,7 @@ export default function SideBar({ onBlockSelect, initialBlock }: SideBarProps) {
   };
 
   function handleNewBoard() {
-    createBoard('New Board');
+    createBoard((blocks?.length || 0).toString() + '_Board');
   }
 
   const createBoard = async (boardName: string) => {
@@ -48,7 +50,7 @@ export default function SideBar({ onBlockSelect, initialBlock }: SideBarProps) {
       newBoard.hasFocus = true;
       setBlocks([...blocks, newBoard]);
     } else {
-      console.error('Errore nella creazione della board');
+      console.error('Errore nella creazione della board', response);
     }
   };
 
@@ -64,7 +66,8 @@ export default function SideBar({ onBlockSelect, initialBlock }: SideBarProps) {
     };
 
     fetchBlocks();
-  }, []); // Ricarica le board quando boardCreated cambia
+    console.log('fetching Blocks');
+  }, [sidebarTrigger]); // Ricarica le board quando boardCreated cambia
 
   // Sync selectedBlock state with the initialBlock prop when it changes
   useEffect(() => {
@@ -94,8 +97,8 @@ export default function SideBar({ onBlockSelect, initialBlock }: SideBarProps) {
         >
           {blocks.length > 0
             ? blocks
-                .filter((block: ClientBoard) => block.ownerId === currUser)
-                .map((block: ClientBoard) => (
+                .filter((block: Board) => block.ownerId === currUser)
+                .map((block: Board) => (
                   <Item
                     key={block.id}
                     value={block.id.toString()}
@@ -106,8 +109,12 @@ export default function SideBar({ onBlockSelect, initialBlock }: SideBarProps) {
                         : 'bg-gray-700 text-white'
                     }`}
                   >
-                    {block.title[0]}
-                    {block.title[1]}
+                    <Tooltip content={block.title}>
+                      <span>
+                        {block.title[0]}
+                        {block.title[1]}
+                      </span>
+                    </Tooltip>
                   </Item>
                 ))
             : null}
@@ -115,8 +122,8 @@ export default function SideBar({ onBlockSelect, initialBlock }: SideBarProps) {
         <h1 className="mb-4 mt-4">
           <strong>Host Boards</strong>
         </h1>
-        {blocks.filter((block: ClientBoard) => block.ownerId !== currUser)
-          .length === 0 && <>...</>}
+        {blocks.filter((block: Board) => block.ownerId !== currUser).length ===
+          0 && <>...</>}
         <Root
           type="single"
           defaultValue="1"
@@ -126,8 +133,8 @@ export default function SideBar({ onBlockSelect, initialBlock }: SideBarProps) {
         >
           {blocks.length > 0
             ? blocks
-                .filter((block: ClientBoard) => block.ownerId !== currUser)
-                .map((block: ClientBoard) => (
+                .filter((block: Board) => block.ownerId !== currUser)
+                .map((block: Board) => (
                   <Item
                     key={block.id}
                     value={block.id.toString()}
