@@ -253,7 +253,9 @@ const Navbar: React.FC = () => {
                     <p className="text-center text-sm font-normal text-gray-700 opacity-80">
                       Prova ad usare i tag{' '}
                       <span className="font-medium text-blue-600">@Column</span>{' '}
-                      e <span className="font-medium text-blue-600">@Card</span>{' '}
+                      ,<span className="font-medium text-blue-600">@Card</span>{' '}
+                      e{' '}
+                      <span className="font-medium text-blue-600">@Board</span>{' '}
                       per cercare!
                     </p>
                   )}

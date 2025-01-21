@@ -21,7 +21,7 @@ model User {
   accounts      Account[]
   ownedBoards   Board[]   @relation("BoardOwner")
   boards        Board[]   @relation("UserBoards")
-  messages      Message[] 
+  messages      Message[]
 }
 
 model Account {
@@ -44,23 +44,23 @@ model Account {
 }
 
 model Board {
-  id      Int      @id @default(autoincrement())
-  title   String
-  ownerId String
-  owner   User     @relation("BoardOwner", fields: [ownerId], references: [id])
-  columns Column[]
-  users   User[]   @relation("UserBoards")
+  id       Int       @id @default(autoincrement())
+  title    String
+  ownerId  String
+  owner    User      @relation("BoardOwner", fields: [ownerId], references: [id])
+  columns  Column[]
+  users    User[]    @relation("UserBoards")
   messages Message[]
 }
 
 model Message {
-  id      Int      @id @default(autoincrement())
-  boardId Int
-  userId  String
-  message String
+  id        Int      @id @default(autoincrement())
+  boardId   Int
+  userId    String
+  message   String
   createdAt DateTime @default(now())
-  user    User     @relation(fields: [userId], references: [id])
-  board   Board    @relation(fields: [boardId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
 }
 
 model Column {
@@ -73,11 +73,11 @@ model Column {
 }
 
 model Card {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   title       String
   columnId    Int
-  message     String   @default("")
+  message     String    @default("")
   columnOrder Int
   deadline    DateTime?
-  column      Column   @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  column      Column    @relation(fields: [columnId], references: [id], onDelete: Cascade)
 }

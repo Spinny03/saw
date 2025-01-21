@@ -1,5 +1,6 @@
 'use client';
 import { useSession } from 'next-auth/react';
+import StartingGuide from '../components/StartingGuide';
 import SideBar from '../components/SideBar';
 import { useEffect, useMemo, useState } from 'react';
 import Column from '../components/Column';
@@ -159,7 +160,24 @@ export default function HomePage() {
     }
   };
 
-  function deleteBoard() {}
+  const deleteBoard = async () => {
+    try {
+      const response = await fetch(`/api/board/${selectedBoard}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      });
+      if (!response.ok) {
+        console.error('Failed to delete current Board.');
+      }
+      setSidebarTrigger((prev) => prev + 1);
+      handleBlockSelect('');
+    } catch (error) {
+      console.error('Error deleting current board:', error);
+    }
+  };
 
   const handleTitleBlur = () => {
     if (boardTitle !== board.title) {
@@ -208,10 +226,11 @@ export default function HomePage() {
           initialBlock={selectedBoard ?? ''}
           sidebarTrigger={sidebarTrigger}
         />
-        <div className="mb-20 flex-1 px-5">
-          <div className="flex items-center justify-between">
-            {/* Editable Board Title */}
-            {selectedBoard && (
+        {selectedBoard && selectedBoard !== '' ? (
+          <div className="mb-20 flex-1 px-5" id="boardContents">
+            <div className="flex items-center justify-between pb-10 pt-2">
+              {/* Editable Board Title */}
+
               <div className="flex items-center rounded-lg bg-white p-4 shadow-md">
                 <input
                   type="text"
@@ -221,57 +240,62 @@ export default function HomePage() {
                   onBlur={handleTitleBlur}
                   className={`rounded-md border-none bg-transparent px-2 text-lg font-semibold text-gray-800 ${session?.user.id === board.ownerId ? 'focus:outline-none focus:ring-2 focus:ring-blue-500' : ''}`}
                 />
-                <button
-                  onClick={() => deleteBoard()}
-                  className="grey-500 rounded-md p-1 hover:bg-gray-300"
-                >
-                  <TrashIcon />
-                </button>
-              </div>
-            )}
-
-            {/* "Utenti" Section */}
-            {board.users && (
-              <div className="flex items-center gap-2 rounded-lg bg-white p-4 shadow-md">
-                <span className="text-sm font-medium text-gray-700">
-                  👥 Utenti:
-                </span>
-                <ModalBoard
-                  editUsers={editUsers}
-                  currUser={session.user.id}
-                  board={board}
-                />
-              </div>
-            )}
-          </div>
-
-          <DndContext sensors={sensors}>
-            <div className="flex flex-col gap-4 overflow-y-auto overflow-x-visible lg:flex-row lg:overflow-x-auto lg:overflow-y-visible">
-              <SortableContext items={columnsIds}>
-                {columns
-                  .toSorted((a, b) => a.boardOrder - b.boardOrder)
-                  .map((column: ColumnType) => (
-                    <Column
-                      key={column.id}
-                      columnProp={column}
-                      deleteColumn={() => {}}
-                      owner={board.ownerId}
-                    />
-                  ))}
-              </SortableContext>
-              {selectedBoard && (
-                <div className="w-full pb-4">
+                {session?.user.id === board.ownerId && (
                   <button
-                    onClick={addColumn}
-                    className="mt-2 w-12 rounded-md bg-blue-500 p-3 text-white"
+                    onClick={() => deleteBoard()}
+                    className="grey-500 rounded-md p-1 hover:bg-gray-300"
                   >
-                    +
+                    <TrashIcon />
                   </button>
+                )}
+              </div>
+
+              {/* "Utenti" Section */}
+              {board.users && (
+                <div className="flex items-center gap-2 rounded-lg bg-white p-4 shadow-md">
+                  <span className="text-sm font-medium text-gray-700">
+                    👥 Utenti:
+                  </span>
+                  <ModalBoard
+                    editUsers={editUsers}
+                    currUser={session.user.id}
+                    board={board}
+                    clickable={session?.user.id === board.ownerId}
+                  />
                 </div>
               )}
             </div>
-          </DndContext>
-        </div>
+            <DndContext sensors={sensors}>
+              <div className="flex flex-col gap-4 overflow-y-auto overflow-x-visible lg:flex-row lg:overflow-x-auto lg:overflow-y-visible">
+                <SortableContext items={columnsIds}>
+                  {columns
+                    .toSorted((a, b) => a.boardOrder - b.boardOrder)
+                    .map((column: ColumnType) => (
+                      <Column
+                        key={column.id}
+                        columnProp={column}
+                        deleteColumn={() => {}}
+                        owner={board.ownerId}
+                      />
+                    ))}
+                </SortableContext>
+                {selectedBoard && session?.user.id === board.ownerId && (
+                  <div className="w-full pb-4">
+                    <button
+                      onClick={addColumn}
+                      className="mt-2 w-12 rounded-md bg-blue-500 p-3 text-white"
+                    >
+                      +
+                    </button>
+                  </div>
+                )}
+              </div>
+            </DndContext>
+          </div>
+        ) : (
+          <StartingGuide />
+        )}
+
         {selectedBoard && <ChatButton selectedBoard={selectedBoard} />}
       </div>
     );

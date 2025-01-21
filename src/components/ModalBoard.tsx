@@ -9,10 +9,12 @@ export default function ModalBoard({
   editUsers,
   currUser,
   board,
+  clickable,
 }: {
   editUsers: (usersToAdd: string[], usersToRemove: string[]) => Promise<void>;
   currUser: string;
   board: any;
+  clickable: boolean;
 }) {
   interface User {
     id: string;
@@ -78,13 +80,23 @@ export default function ModalBoard({
 
   return (
     <Dialog.Root>
-      <Dialog.Trigger>
-        <AvatarGroup total={board.users.length} max={4}>
-          {board.users?.map((user: any) => (
-            <Avatar key={user.id} src={user.image} alt={user.name} />
-          ))}
-        </AvatarGroup>
-      </Dialog.Trigger>
+      {clickable ? (
+        <Dialog.Trigger>
+          <AvatarGroup total={board.users.length} max={4}>
+            {board.users?.map((user: any) => (
+              <Avatar key={user.id} src={user.image} alt={user.name} />
+            ))}
+          </AvatarGroup>
+        </Dialog.Trigger>
+      ) : (
+        <div>
+          <AvatarGroup total={board.users.length} max={4}>
+            {board.users?.map((user: any) => (
+              <Avatar key={user.id} src={user.image} alt={user.name} />
+            ))}
+          </AvatarGroup>
+        </div>
+      )}
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50" />
         <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform rounded-md bg-white p-6 shadow-lg">

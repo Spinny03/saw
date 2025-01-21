@@ -97,3 +97,37 @@ export async function PUT(
     return new Response('Error updating board title', { status: 500 });
   }
 }
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ boardId: string }> }
+) {
+  const { boardId } = await params;
+
+  const userId = await getUserId();
+  if (!userId) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
+  const board = await prisma.board.findUnique({
+    where: {
+      id: parseInt(boardId),
+    },
+  });
+  if (board?.ownerId !== userId) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
+  await prisma.board.delete({
+    where: {
+      id: parseInt(boardId),
+    },
+  });
+
+  return new Response('Board Deleted', {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
