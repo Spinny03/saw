@@ -4,7 +4,7 @@ import { NextRequest } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { boardId: string } }
+  { params }: { params: Promise<{ boardId: string }> }
 ) {
   const { boardId } = await params;
 
@@ -35,7 +35,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { boardId: string } }
+  { params }: { params: Promise<{ boardId: string }> }
 ) {
   const { boardId } = await params;
 

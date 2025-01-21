@@ -42,6 +42,7 @@ export async function POST(
     data: {
       title,
       boardId: parseInt(boardId),
+      boardOrder: 0, // or any appropriate default value
     },
   });
 
