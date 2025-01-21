@@ -4,7 +4,7 @@
 import { useSession } from 'next-auth/react';
 import { Button } from '@radix-ui/themes';
 
-export default function HomePage() {
+export default function ProfilePage() {
   const { data: session } = useSession();
   if (session) {
     return (

@@ -4,7 +4,7 @@ import SideBar from '../components/SideBar';
 import { useEffect, useMemo, useState } from 'react';
 import Column from '../components/Column';
 import ModalBoard from '@/components/ModalBoard';
-import LandingPage from '@/components/LandingPage';
+import { useRouter } from 'next/navigation';
 import { Column as PrismaColumn, Card as PrismaCard } from '@prisma/client';
 import {
   DndContext,
@@ -22,12 +22,14 @@ interface ColumnType extends PrismaColumn {
 }
 
 export default function HomePage() {
-  const { data: session } = useSession();
+  const router = useRouter();
+  const { data: session, status } = useSession(); // Added session status
   const [selectedBoard, setSelectedBoard] = useState<string | null>(null);
   const [board, setBoard] = useState<any>([]);
   const [columns, setColumns] = useState<ColumnType[]>([]);
   const columnsIds = useMemo(() => columns.map((c) => c.id), [columns]);
   const [activeColumn, setActiveColumn] = useState<ColumnType | null>(null);
+  const [loading, setLoading] = useState(true); // Added loading state
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -38,17 +40,24 @@ export default function HomePage() {
   );
 
   useEffect(() => {
-    if (!session) return;
+    if (status === 'loading') {
+      setLoading(true); // Show loading screen while session is loading
+      return;
+    }
 
+    if (status === 'unauthenticated') {
+      router.push('/landing'); // Redirect to login page if not authenticated
+      return;
+    }
+
+    // Session is authenticated, proceed with loading the board
     const loadLastSelectedBoard = () => {
-      // Attempt to load selected board from sessionStorage
       const storedBoard = sessionStorage.getItem('selectedBoard');
       if (storedBoard) {
         setSelectedBoard(storedBoard);
         handleBlockSelect(storedBoard);
       } else {
-        // If no stored board, fallback to session user data
-        const userBoard = session.user.lastBoard;
+        const userBoard = session?.user.lastBoard;
         if (userBoard) {
           setSelectedBoard(userBoard);
           handleBlockSelect(userBoard);
@@ -57,7 +66,8 @@ export default function HomePage() {
     };
 
     loadLastSelectedBoard();
-  }, [session]);
+    setLoading(false); // Hide loading screen once session is ready
+  }, [status, session, router]);
 
   const handleBlockSelect = async (blockId: string) => {
     setSelectedBoard(blockId);
@@ -76,10 +86,8 @@ export default function HomePage() {
   };
 
   const editUsers = async (usersToAdd: string[], usersToRemove: string[]) => {
-    if (!selectedBoard) return;
+    if (!selectedBoard || !session) return;
 
-    // Ensure that the current user is not being added or removed
-    if (!session) return;
     if (
       usersToAdd.includes(session.user.id) ||
       usersToRemove.includes(session.user.id)
@@ -89,7 +97,6 @@ export default function HomePage() {
     }
 
     try {
-      // Send the PUT request to update users
       const response = await fetch(`/api/board/${selectedBoard}/users`, {
         method: 'PUT',
         headers: {
@@ -100,16 +107,12 @@ export default function HomePage() {
 
       if (response.ok) {
         const updatedUsers = await response.json();
-
-        // Update the board state with the new users
         setBoard((prevBoard: any) => ({
           ...prevBoard,
           users: prevBoard.users
-            .filter((user: any) => !usersToRemove.includes(user.id)) // Remove users that were in usersToRemove
-            .concat(updatedUsers), // Add the newly added users
+            .filter((user: any) => !usersToRemove.includes(user.id)) // Remove users
+            .concat(updatedUsers), // Add newly added users
         }));
-
-        // Force reload the modal with updated board users
         handleBlockSelect(selectedBoard); // Re-fetch board and users
       } else {
         console.error('Error updating users');
@@ -173,7 +176,7 @@ export default function HomePage() {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (!session) return;
       if (selectedBoard) {
-        sessionStorage.setItem('selectedBoard', selectedBoard); // Sync with sessionStorage
+        sessionStorage.setItem('selectedBoard', selectedBoard);
         console.log('Saving selected board in sessionStorage:', selectedBoard);
       }
     };
@@ -187,7 +190,6 @@ export default function HomePage() {
     };
   }, [selectedBoard]);
 
-  // Automatically update selectedBoard from sessionStorage when it changes
   useEffect(() => {
     const onStorageChange = () => {
       const storedBoard = sessionStorage.getItem('selectedBoard');
@@ -198,12 +200,15 @@ export default function HomePage() {
       }
     };
 
-    console.log('SessionStorage Event Listener Added!');
     window.addEventListener('storage', onStorageChange);
     return () => {
       window.removeEventListener('storage', onStorageChange);
     };
   }, []);
+
+  if (loading) {
+    return <div>Loading...</div>; // Show loading message while waiting for session
+  }
 
   if (session) {
     return (
@@ -258,7 +263,7 @@ export default function HomePage() {
       </div>
     );
   } else {
-    return <LandingPage />;
+    return <>suca</>; // Handle unauthenticated users (this part can be refined)
   }
 
   function onDragStart(event: DragStartEvent) {

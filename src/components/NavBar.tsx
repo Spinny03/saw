@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as Toolbar from '@radix-ui/react-toolbar';
 import * as Avatar from '@radix-ui/react-avatar';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
@@ -43,6 +43,8 @@ const Navbar: React.FC = () => {
     cardMessages: [],
   });
   const [searchQuery, setSearchQuery] = useState('');
+  const isMainPage = usePathname() === '/';
+  const isLandingPage = usePathname() === '/landing';
 
   const inputRef = useRef<HTMLInputElement>(null); // Create a ref for the input field
 
@@ -118,12 +120,20 @@ const Navbar: React.FC = () => {
     <Toolbar.Root className="flex items-center justify-between bg-gray-800 px-6 py-4 text-white">
       <Toolbar.Button
         className="text-lg font-bold focus:outline-none"
-        onClick={() => router.push('/')}
+        onClick={() => router.push('/landing')}
       >
         CoralApp
       </Toolbar.Button>
+      {!isMainPage && session && (
+        <button
+          onClick={() => router.push('/')}
+          className="ml-10 mr-auto text-white"
+        >
+          Go to the app
+        </button>
+      )}
 
-      {session && (
+      {session && isMainPage && (
         <div className="flex flex-1 justify-end">
           <div className="mx-40 hidden w-full md:block">
             <button
@@ -162,6 +172,12 @@ const Navbar: React.FC = () => {
               onClick={() => router.push('/profile')}
             >
               Profile
+            </DropdownMenu.Item>
+            <DropdownMenu.Item
+              className="cursor-pointer px-4 py-2 hover:bg-gray-200"
+              onClick={() => router.push('/')}
+            >
+              Boards
             </DropdownMenu.Item>
             <DropdownMenu.Item
               className="cursor-pointer px-4 py-2 hover:bg-gray-200"

@@ -1,3 +1,4 @@
+// app/homepage/page.tsx
 'use client';
 
 export default function LandingPage() {
@@ -117,20 +118,22 @@ export default function LandingPage() {
               <img
                 src="/memoji.png"
                 alt="Filippo Spinella"
-                className="mb-4 rounded-full"
+                className="mb-4 rounded-full border-4 border-teal-900"
               />
               <p className="font-semibold">Filippo Spinella</p>
               <p>Fondatore</p>
             </div>
-            <div className="text-center">
-              <img
-                src="memojig.png"
-                alt="Andrea Garaccioni"
-                className="mb-4 rounded-full"
-              />
-              <p className="font-semibold">Andrea Garaccioni</p>
-              <p>Co-Fondatore</p>
-            </div>
+            <a href="https://github.com/Guracc" target="_blank">
+              <div className="text-center">
+                <img
+                  src="memojig.png"
+                  alt="Andrea Garaccioni"
+                  className="mb-4 rounded-full border-4 border-teal-900"
+                />
+                <p className="font-semibold">Andrea Garaccioni</p>
+                <p>Co-Fondatore</p>
+              </div>
+            </a>
           </div>
         </section>
 
