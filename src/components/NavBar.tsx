@@ -117,19 +117,20 @@ const Navbar: React.FC = () => {
   );
 
   return (
-    <Toolbar.Root className="flex items-center justify-between bg-gray-800 px-6 py-4 text-white">
+    <Toolbar.Root className="flex items-center justify-between bg-gray-800 px-6 py-4 text-gray-100">
       <Toolbar.Button
-        className="text-lg font-bold focus:outline-none"
+        className="text-lg font-bold transition-all hover:text-white focus:outline-none"
         onClick={() => router.push('/landing')}
       >
         CoralApp
       </Toolbar.Button>
+
       {!isMainPage && session && (
         <button
           onClick={() => router.push('/')}
-          className="ml-10 mr-auto text-white"
+          className="ml-12 mr-auto text-white transition-all hover:text-white"
         >
-          Go to the app
+          Visualizza le board
         </button>
       )}
 

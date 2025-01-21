@@ -5,6 +5,10 @@ import { useEffect, useState } from 'react';
 import { Root, Item } from '@radix-ui/react-toggle-group';
 import { Board } from '@prisma/client';
 
+interface ClientBoard extends Board {
+  hasFocus: boolean;
+}
+
 interface SideBarProps {
   readonly onBlockSelect: (blockId: string) => void;
   readonly initialBlock: string;
@@ -12,8 +16,7 @@ interface SideBarProps {
 
 export default function SideBar({ onBlockSelect, initialBlock }: SideBarProps) {
   const [selectedBlock, setSelectedBlock] = useState<string>(initialBlock);
-  const [blocks, setBlocks] = useState<Board[]>([]);
-  const [boardName, setBoardName] = useState('');
+  const [blocks, setBlocks] = useState<ClientBoard[]>([]);
   const { data: session } = useSession();
 
   const currUser = session?.user?.id;
@@ -27,7 +30,11 @@ export default function SideBar({ onBlockSelect, initialBlock }: SideBarProps) {
     onBlockSelect(value);
   };
 
-  const createBoard = async () => {
+  function handleNewBoard() {
+    createBoard('New Board');
+  }
+
+  const createBoard = async (boardName: string) => {
     const response = await fetch('/api/board', {
       method: 'POST',
       headers: {
@@ -37,8 +44,8 @@ export default function SideBar({ onBlockSelect, initialBlock }: SideBarProps) {
     });
 
     if (response.ok) {
-      const newBoard = await response.json();
-      setBoardName('');
+      let newBoard = await response.json();
+      newBoard.hasFocus = true;
       setBlocks([...blocks, newBoard]);
     } else {
       console.error('Errore nella creazione della board');
@@ -71,7 +78,7 @@ export default function SideBar({ onBlockSelect, initialBlock }: SideBarProps) {
       </h1>
       <div className="w-full pb-4">
         <button
-          onClick={createBoard}
+          onClick={handleNewBoard}
           className="mt-2 w-12 rounded-md bg-blue-500 p-3 text-white"
         >
           +
@@ -87,8 +94,8 @@ export default function SideBar({ onBlockSelect, initialBlock }: SideBarProps) {
         >
           {blocks.length > 0
             ? blocks
-                .filter((block: Board) => block.ownerId === currUser)
-                .map((block: Board) => (
+                .filter((block: ClientBoard) => block.ownerId === currUser)
+                .map((block: ClientBoard) => (
                   <Item
                     key={block.id}
                     value={block.id.toString()}
@@ -99,7 +106,8 @@ export default function SideBar({ onBlockSelect, initialBlock }: SideBarProps) {
                         : 'bg-gray-700 text-white'
                     }`}
                   >
-                    {block.id}
+                    {block.title[0]}
+                    {block.title[1]}
                   </Item>
                 ))
             : null}
@@ -107,8 +115,8 @@ export default function SideBar({ onBlockSelect, initialBlock }: SideBarProps) {
         <h1 className="mb-4 mt-4">
           <strong>Host Boards</strong>
         </h1>
-        {blocks.filter((block: Board) => block.ownerId !== currUser).length ===
-          0 && <>...</>}
+        {blocks.filter((block: ClientBoard) => block.ownerId !== currUser)
+          .length === 0 && <>...</>}
         <Root
           type="single"
           defaultValue="1"
@@ -118,8 +126,8 @@ export default function SideBar({ onBlockSelect, initialBlock }: SideBarProps) {
         >
           {blocks.length > 0
             ? blocks
-                .filter((block: Board) => block.ownerId !== currUser)
-                .map((block: Board) => (
+                .filter((block: ClientBoard) => block.ownerId !== currUser)
+                .map((block: ClientBoard) => (
                   <Item
                     key={block.id}
                     value={block.id.toString()}
