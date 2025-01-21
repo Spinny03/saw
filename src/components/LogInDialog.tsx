@@ -17,14 +17,14 @@ const LogIn = () => {
     try {
       await signIn('credentials', { email, password });
     } catch (error) {
-      alert('Invalid credentials');
+      alert('Credenziali non valide');
     }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      alert('Le password non corrispondono');
       return;
     }
     /* chiama l'endpoint di registrazione */
@@ -43,9 +43,9 @@ const LogIn = () => {
     if (response.ok) {
       await signIn('credentials', { email, password });
     } else if (response.status === 409) {
-      alert('User already exists');
+      alert('Utente già esistente');
     } else if (response.status === 400) {
-      alert('Invalid data');
+      alert('Dati non validi');
     }
   };
 
@@ -54,7 +54,7 @@ const LogIn = () => {
       <RadixDialog.Root>
         <RadixDialog.Trigger asChild>
           <button className="rounded bg-blue-500 px-4 py-2 text-white">
-            {isSignUp ? 'Sign Up' : 'Log In'}
+            {isSignUp ? 'Registrati' : 'Accedi'}
           </button>
         </RadixDialog.Trigger>
         <RadixDialog.Portal>
@@ -62,7 +62,7 @@ const LogIn = () => {
           <RadixDialog.Content className="fixed inset-0 flex items-center justify-center">
             <div className="relative w-full max-w-md rounded bg-white p-6 shadow-lg">
               <RadixDialog.Title className="mb-4 text-xl font-bold">
-                {isSignUp ? 'Sign Up' : 'Log In'}
+                {isSignUp ? 'Registrati' : 'Accedi'}
               </RadixDialog.Title>
               <RadixDialog.Close asChild>
                 <button className="absolute right-4 top-2 text-gray-500 hover:text-gray-700">
@@ -74,7 +74,7 @@ const LogIn = () => {
                   <>
                     <input
                       type="text"
-                      placeholder="First Name"
+                      placeholder="Nome"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       required
@@ -82,7 +82,7 @@ const LogIn = () => {
                     />
                     <input
                       type="text"
-                      placeholder="Last Name"
+                      placeholder="Cognome"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       required
@@ -109,7 +109,7 @@ const LogIn = () => {
                 {isSignUp && (
                   <input
                     type="password"
-                    placeholder="Confirm Password"
+                    placeholder="Conferma Password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
@@ -120,22 +120,22 @@ const LogIn = () => {
                   type="submit"
                   className="w-full rounded bg-blue-500 px-4 py-2 text-white"
                 >
-                  {isSignUp ? 'Sign Up' : 'Log In'}
+                  {isSignUp ? 'Registrati' : 'Accedi'}
                 </button>
               </form>
               <button
                 className="mt-4 w-full rounded bg-red-500 px-4 py-2 text-white"
                 onClick={() => signIn('google')}
               >
-                Sign In with Google
+                Accedi con Google
               </button>
               <button
                 className="mt-4 w-full px-4 py-2 text-blue-500"
                 onClick={() => setIsSignUp(!isSignUp)}
               >
                 {isSignUp
-                  ? 'Already have an account? Log In'
-                  : 'Don’t have an account? Sign Up'}
+                  ? 'Hai già un account? Accedi'
+                  : 'Non hai un account? Registrati'}
               </button>
             </div>
           </RadixDialog.Content>

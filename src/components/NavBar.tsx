@@ -192,7 +192,7 @@ const Navbar: React.FC = () => {
               className="cursor-pointer px-4 py-2 hover:bg-gray-200"
               onClick={() => router.push('/profile')}
             >
-              Profile
+              Profilo
             </DropdownMenu.Item>
             <DropdownMenu.Item
               className="cursor-pointer px-4 py-2 hover:bg-gray-200"
