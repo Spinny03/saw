@@ -13,6 +13,7 @@ export default function ProfilePage() {
   const [surname, setSurname] = useState(session?.user.surname || '');
   const [password, setPassword] = useState('');
   const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     setEmail(session?.user.email || '');
@@ -39,16 +40,26 @@ export default function ProfilePage() {
       formData.append('image', profileImage);
     }
 
-    fetch('/api/user/me', {
+    const response = await fetch('/api/user/me', {
       method: 'PUT',
       body: formData,
     });
+
+    if (response.ok) {
+      setSuccessMessage('Modifiche salvate con successo!');
+      setTimeout(() => setSuccessMessage(''), 3000); // Nascondi il messaggio dopo 3 secondi
+    }
   };
 
   if (session) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-6">
         <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-md">
+          {successMessage && (
+            <div className="mb-4 rounded-lg bg-green-100 p-4 text-green-700">
+              {successMessage}
+            </div>
+          )}
           <div className="mb-6 flex items-center">
             {session.user.image ? (
               <img

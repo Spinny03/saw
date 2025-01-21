@@ -2,6 +2,7 @@ import { getUserId } from '@/libs/userClient';
 import { prisma } from '@/prisma';
 import { put } from '@vercel/blob';
 import path from 'path';
+import bcrypt from 'bcrypt';
 
 import { User } from '@prisma/client';
 
@@ -49,7 +50,7 @@ export async function PUT(request: Request) {
     });
     imageUrl = url;
   }
-
+  const passwordHash = await bcrypt.hash(password, 10);
   try {
     const updatedUser = await prisma.user.update({
       where: { id: userId },
@@ -57,6 +58,7 @@ export async function PUT(request: Request) {
         email,
         name,
         surname,
+        password: passwordHash,
         ...(imageUrl && { image: imageUrl }),
       },
     });
