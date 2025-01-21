@@ -34,23 +34,41 @@ export async function PUT(request: Request) {
     return new Response('User ID is required', { status: 400 });
   }
 
-  let email, name, surname, password, image;
-  let contentType = request.headers.get('content-type');
+  let email, name, surname, currentPassword, newPassword, image;
+  const contentType = request.headers.get('content-type');
 
   if (contentType?.includes('multipart/form-data')) {
     const formData = await request.formData();
     email = formData.get('email') as string;
     name = formData.get('name') as string;
     surname = formData.get('surname') as string;
-    password = formData.get('password') as string;
+    currentPassword = formData.get('currentPassword') as string;
+    newPassword = formData.get('newPassword') as string;
     image = formData.get('image') as File | null;
   } else {
     const jsonData = await request.json();
     email = jsonData.email;
     name = jsonData.name;
     surname = jsonData.surname;
-    password = jsonData.password;
+    currentPassword = jsonData.currentPassword;
+    newPassword = jsonData.newPassword;
     image = null;
+  }
+
+  // Se viene fornita una nuova password, verifica quella corrente
+  if (newPassword) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user || !user.password) {
+      return new Response('User not found', { status: 404 });
+    }
+
+    const isValidPassword = await bcrypt.compare(
+      currentPassword,
+      user.password
+    );
+    if (!isValidPassword) {
+      return new Response('Current password is incorrect', { status: 401 });
+    }
   }
 
   let imageUrl;
@@ -64,9 +82,8 @@ export async function PUT(request: Request) {
   }
 
   let passwordHash;
-  if (password) {
-    // Fixed the condition from !password to password
-    passwordHash = await bcrypt.hash(password, 10);
+  if (newPassword) {
+    passwordHash = await bcrypt.hash(newPassword, 10);
   }
 
   try {
