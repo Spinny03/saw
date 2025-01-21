@@ -43,5 +43,5 @@ function login($email, $password, $baseurl)
         echo "Errore durante il login\n";
         die();
     }
-    echo"[-] Login effettuato: ".$httpCode." <br />";
+    echo"[-] Login effettuato: ".$httpCode." \n";
 }

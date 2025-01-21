@@ -16,67 +16,67 @@ require 'utils.php';
 /**********************************************/
 $baseurl = "http://127.0.0.1:3000";
 
-echo "[+] Testing Registration - Login - Show Profile<br/>";
+echo "[+] Testing Registration - Login - Show Profile\n";
 
-echo "[*] Generating random user<br/>";
+echo "[*] Generating random user\n";
 
-echo "---<br/>";
+echo "---\n";
 $email = generate_random_email();
 $pass = generate_random_password();
 $first_name = generate_random_name();
 $last_name = generate_random_name();
-echo "Email: $email<br/>";
-echo "Pass: $pass<br/>";
-echo "First name: $first_name<br/>";
-echo "Last name: $last_name<br/>";
-echo "---<br/>";
+echo "Email: $email\n";
+echo "Pass: $pass\n";
+echo "First name: $first_name\n";
+echo "Last name: $last_name\n";
+echo "---\n";
 
-echo "[-] Calling registration.php<br/>";
+echo "[-] Calling registration.php\n";
 
 $user_id = register($email, $pass, $first_name, $last_name, $baseurl);
-echo '<strong> User ID: ' . $user_id . "</strong> <br/>";
+echo 'User ID: ' . $user_id . "\n";
 
-echo "[-] Calling login.php<br/>";
+echo "[-] Calling login.php\n";
 login($email, $pass, $baseurl);
 
-echo "[-] Calling show_profile.php<br/>";
+echo "[-] Calling show_profile.php\n";
 
 echo check_correct_user($email, $first_name, $last_name, $user_id, show_logged_user($baseurl,$user_id))
-    ? "[*] Success :)<br/>"
-    : "[*] Failed<br/>";
+    ? "[*] Success :)\n"
+    : "[*] Failed\n";
 
-echo "------------------------<br/>";
+echo "------------------------\n";
 
-echo "[+] Testing Update - Show Profile<br/>";
+echo "[+] Testing Update - Show Profile\n";
 
-echo "[*] Generating new random user<br/>";
+echo "[*] Generating new random user\n";
 $first_name = generate_random_name();
 $last_name = generate_random_name();
 
-echo "---<br/>";
-echo "Email: $email<br/>";
-echo "First name: $first_name<br/>";
-echo "Last name: $last_name<br/>";
-echo "---<br/>";
+echo "---\n";
+echo "Email: $email\n";
+echo "First name: $first_name\n";
+echo "Last name: $last_name\n";
+echo "---\n";
 
-echo "[-] Calling update_profile.php<br/>";
+echo "[-] Calling update_profile.php\n";
 update($user_id, $email, $first_name, $last_name, $baseurl);
 
-echo "[-] Calling show_profile.php<br/>";
+echo "[-] Calling show_profile.php\n";
 
 echo check_correct_user($email, $first_name, $last_name, $user_id, show_logged_user($baseurl,$user_id))
-    ? "[*] Success :)<br/>"
-    : "[*] Failed<br/>";
+    ? "[*] Success :)\n"
+    : "[*] Failed\n";
 
-echo "---<br/>";
-echo "[+] Testing Logout - Show Profile<br/>";
-echo "[-] Calling logout.php<br/>";
+echo "---\n";
+echo "[+] Testing Logout - Show Profile\n";
+echo "[-] Calling logout.php\n";
 logout($baseurl);
 
-echo "[-] Calling show_profile.php (it must fail after logout)<br/>";
+echo "[-] Calling show_profile.php (it must fail after logout)\n";
 echo check_correct_user($email, $first_name, $last_name, $user_id, show_logged_user($baseurl, $user_id))
-    ? "[*] Success :)<br/>"
-    : "[*] Failed<br/>";
+    ? "[*] Success\n"
+    : "[*] Failed :)\n";
 
-echo "------------------------<br/>";
+echo "------------------------\n";
 ?>

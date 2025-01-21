@@ -23,7 +23,7 @@ function logout($baseurl)
     curl_setopt($curl_handler, CURLOPT_HTTPHEADER, [
         'Cookie:next-auth.csrf-token='.$csrfToken,
     ]);
-    curl_setopt($curl_handler, CURLOPT_VERBOSE, true);
+    //curl_setopt($curl_handler, CURLOPT_VERBOSE, true);
     curl_setopt($curl_handler, CURLOPT_COOKIEFILE, "");
     curl_setopt($curl_handler, CURLOPT_COOKIEJAR, $cookieFile);
     curl_setopt($curl_handler, CURLOPT_FOLLOWLOCATION, 0);
@@ -35,7 +35,7 @@ function logout($baseurl)
     if (curl_errno($curl_handler)) {
         echo 'Error:' . curl_error($curl_handler);
     }
-    echo "Response: " . $httpCode . "<br/>";
+    //echo "Response: " . $httpCode . "\n";
     curl_close($curl_handler);
 }
 ?>

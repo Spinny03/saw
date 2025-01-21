@@ -43,7 +43,7 @@ function register($email, $password, $first_name, $last_name, $baseurl)
     if (curl_errno($ch)) {
         echo 'Error:' . curl_error($ch);
     } else {
-        echo "Response: " . $result . "<br/>";
+        //echo "Response: " . $result . "\n";
     }
     
     curl_close($ch);

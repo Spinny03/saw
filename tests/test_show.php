@@ -4,7 +4,7 @@ function show_logged_user($baseurl, $user_id) {
 
     $ch = curl_init();
 
-    curl_setopt($ch, CURLOPT_URL, $baseurl . "/api/user/".$user_id);
+    curl_setopt($ch, CURLOPT_URL, $baseurl . "/api/user/me");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
     curl_setopt($ch, CURLOPT_HTTPHEADER, [

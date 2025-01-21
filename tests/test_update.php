@@ -6,8 +6,8 @@ function update($user_id, $email, $first_name, $last_name, $baseurl)
     $ch = curl_init();
 
     // Costruisci l'endpoint
-    $url = $baseurl . "/api/user/" . $user_id;
-    echo "URL: " . $url . "<br/>";
+    $url = $baseurl . "/api/user/me";
+    echo "URL: " . $url . "\n";
 
     // Imposta l'URL e l'opzione per restituire il risultato come stringa
     curl_setopt($ch, CURLOPT_URL, $url);
@@ -39,12 +39,12 @@ function update($user_id, $email, $first_name, $last_name, $baseurl)
     // Esegui la richiesta
     $result = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    echo $httpCode;
+    //echo $httpCode;
     // Gestione errori cURL
     if (curl_errno($ch)) {
         echo 'Errore cURL: ' . curl_error($ch);
     } else {
-        echo "Response: " . $result . "<br/>";
+        //echo "Response: " . $result . "\n";
     }
 
     // Chiude la sessione cURL
