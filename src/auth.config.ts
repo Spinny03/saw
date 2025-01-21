@@ -12,6 +12,7 @@ declare module 'next-auth' {
       address: string;
       id: string;
       lastBoard: string;
+      surname: string;
     } & DefaultSession['user'];
   }
 }
@@ -30,6 +31,11 @@ function compare(password: string, hash: string) {
       }
     );
   });
+}
+
+function splitName(fullName: string) {
+  const [name, ...surname] = fullName.split(' ');
+  return { name, surname: surname.join(' ') };
 }
 
 export const authOptions: AuthOptions = {
@@ -114,6 +120,8 @@ export const authOptions: AuthOptions = {
         }
         session.user.lastBoard = user.lastBoard || '';
         session.user.image = user.image || '';
+        session.user.surname = user.surname || '';
+        session.user.name = user.name || '';
       }
       console.log('Session:', session);
       return session;
@@ -127,6 +135,7 @@ export const authOptions: AuthOptions = {
       }
       const userId = message.user.id;
       const imageUrl = message.user.image;
+      const fullName = message.user.name;
 
       if (!imageUrl) {
         console.error('Image URL is undefined or null');
@@ -153,9 +162,13 @@ export const authOptions: AuthOptions = {
         console.error('Error downloading image:', error);
       }
       console.log('URL:', url);
+
+      const { name, surname } = splitName(fullName || '');
+      console.log('Name:', name, 'Surname:', surname);
+
       await prisma.user.update({
         where: { id: userId },
-        data: { image: url },
+        data: { image: url, name: name, surname: surname },
       });
     },
     async signOut(message) {
