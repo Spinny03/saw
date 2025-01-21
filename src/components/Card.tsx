@@ -24,7 +24,7 @@ const editCard = async (
         body: JSON.stringify({
           title: card.title,
           message: card.message,
-          deadline: card.deadline,
+          starred: card.starred,
         }),
       }
     );
@@ -48,7 +48,7 @@ const useToast = () => {
 export default function Card({ card, deleteCard, editable }: CardProps) {
   const [title, setTitle] = useState(card.title);
   const [message, setMessage] = useState(card.message);
-  const [showFavourite, setShowFavourite] = useState(false);
+  const [starred, setStarred] = useState(card.starred);
   const { toast, setToast } = useToast();
 
   const showToast = (message: string) => {
@@ -68,6 +68,11 @@ export default function Card({ card, deleteCard, editable }: CardProps) {
       editCard(card, showToast);
     }
   };
+
+  function changeStarred() {
+    card.starred = starred;
+    editCard(card, showToast);
+  }
 
   return (
     <div key={card.id} className="mb-2 rounded-md bg-white p-2 shadow">
@@ -100,14 +105,13 @@ export default function Card({ card, deleteCard, editable }: CardProps) {
         className="mb-1 ml-auto mr-1 flex"
         onClick={() => {
           if (editable) {
-            setShowFavourite((prev) => !prev);
+            setStarred((prev) => !prev);
+            changeStarred();
           }
         }}
       >
         <StarIcon
-          className={`h-5 w-5 ${
-            showFavourite ? 'text-gray-900' : 'text-gray-300'
-          }`}
+          className={`h-5 w-5 ${starred ? 'text-gray-900' : 'text-gray-300'}`}
           style={{ strokeWidth: 2 }}
         />
       </button>

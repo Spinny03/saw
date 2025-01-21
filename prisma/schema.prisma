@@ -73,11 +73,11 @@ model Column {
 }
 
 model Card {
-  id          Int       @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   title       String
   columnId    Int
-  message     String    @default("")
+  message     String  @default("")
   columnOrder Int
-  deadline    DateTime?
-  column      Column    @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  starred     Boolean @default(false)
+  column      Column  @relation(fields: [columnId], references: [id], onDelete: Cascade)
 }

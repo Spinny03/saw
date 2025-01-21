@@ -36,7 +36,7 @@ export async function PUT(
     return new Response('Unauthorized', { status: 401 });
   }
 
-  const { title, message, deadline } = await request.json();
+  const { title, message, starred } = await request.json();
 
   const newCard = await prisma.card.update({
     where: {
@@ -45,7 +45,7 @@ export async function PUT(
     data: {
       title,
       message,
-      deadline,
+      starred,
       columnId: parseInt(columnId),
     },
   });
