@@ -34,12 +34,24 @@ export async function PUT(request: Request) {
     return new Response('User ID is required', { status: 400 });
   }
 
-  const formData = await request.formData();
-  const email = formData.get('email') as string;
-  const name = formData.get('name') as string;
-  const surname = formData.get('surname') as string;
-  const password = formData.get('password') as string;
-  const image = formData.get('image') as File | null;
+  let email, name, surname, password, image;
+  let contentType = request.headers.get('content-type');
+
+  if (contentType?.includes('multipart/form-data')) {
+    const formData = await request.formData();
+    email = formData.get('email') as string;
+    name = formData.get('name') as string;
+    surname = formData.get('surname') as string;
+    password = formData.get('password') as string;
+    image = formData.get('image') as File | null;
+  } else {
+    const jsonData = await request.json();
+    email = jsonData.email;
+    name = jsonData.name;
+    surname = jsonData.surname;
+    password = jsonData.password;
+    image = null;
+  }
 
   let imageUrl;
   if (image) {
@@ -50,15 +62,21 @@ export async function PUT(request: Request) {
     });
     imageUrl = url;
   }
-  const passwordHash = await bcrypt.hash(password, 10);
+
+  let passwordHash;
+  if (password) {
+    // Fixed the condition from !password to password
+    passwordHash = await bcrypt.hash(password, 10);
+  }
+
   try {
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
-        email,
-        name,
-        surname,
-        password: passwordHash,
+        ...(email && { email }),
+        ...(name && { name }),
+        ...(surname && { surname }),
+        ...(passwordHash && { password: passwordHash }),
         ...(imageUrl && { image: imageUrl }),
       },
     });
