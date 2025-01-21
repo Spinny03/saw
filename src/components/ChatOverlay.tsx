@@ -100,7 +100,7 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({
           >
             {msg.userId !== userId && (
               <img
-                src={msg.user?.image || '/default-avatar.png'}
+                src={msg.user?.image ?? '/default-avatar.png'}
                 alt="avatar"
                 className="mr-2 h-8 w-8 rounded-full"
               />
@@ -112,7 +112,7 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({
             </div>
             {msg.userId === userId && (
               <img
-                src={msg.user?.image || '/default-avatar.png'}
+                src={msg.user?.image ?? '/default-avatar.png'}
                 alt="avatar"
                 className="ml-2 h-8 w-8 rounded-full"
               />

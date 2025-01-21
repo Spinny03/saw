@@ -177,7 +177,7 @@ export default function HomePage() {
       console.log('Session board changed', storedBoard);
       if (storedBoard !== selectedBoard) {
         setSelectedBoard(storedBoard);
-        handleBlockSelect(storedBoard || ''); // Handle empty string or fallback
+        handleBlockSelect(storedBoard ?? ''); // Handle empty string or fallback
       }
     };
 

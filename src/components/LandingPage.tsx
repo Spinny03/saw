@@ -69,7 +69,7 @@ export default function LandingPage() {
           {' '}
           {/* Modifica qui: items-center -> items-start */}
           <img
-            src="/memoji.png"
+            src="/lorempixel.jpg"
             alt="CoralApp Example"
             className="mr-8 w-full rounded-lg shadow-lg lg:mb-0 lg:w-1/2"
           />
@@ -115,7 +115,7 @@ export default function LandingPage() {
           <div className="flex justify-around">
             <div className="text-center">
               <img
-                src="https://via.placeholder.com/100"
+                src="/memoji.png"
                 alt="Filippo Spinella"
                 className="mb-4 rounded-full"
               />
@@ -124,7 +124,7 @@ export default function LandingPage() {
             </div>
             <div className="text-center">
               <img
-                src="https://via.placeholder.com/100"
+                src="memojig.png"
                 alt="Andrea Garaccioni"
                 className="mb-4 rounded-full"
               />

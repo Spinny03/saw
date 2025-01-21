@@ -34,7 +34,9 @@ const Navbar: React.FC = () => {
   const router = useRouter();
   const { data: session } = useSession();
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
+  const [searchStatus, setSearchStatus] = useState<
+    'idle' | 'searching' | 'complete' | 'nextSearch'
+  >('idle');
   const [searchResults, setSearchResults] = useState<SearchResult>({
     columns: [],
     cardTitles: [],
@@ -48,6 +50,7 @@ const Navbar: React.FC = () => {
   const closeSearchModal = () => setIsSearchModalOpen(false);
 
   const fetchResults = async (query: string) => {
+    setSearchStatus('searching'); // Set status to searching when starting
     try {
       const url = new URL(
         `/api/search?query=${encodeURIComponent(query)}`,
@@ -61,16 +64,16 @@ const Navbar: React.FC = () => {
 
       const data: SearchResult = await response.json();
       setSearchResults(data);
+      setSearchStatus('complete'); // Set status to complete after receiving results
     } catch (error) {
       console.error('Errore durante la ricerca:', error);
+      setSearchStatus('idle'); // Reset to idle on error
     }
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      setIsSearching(true);
       fetchResults(event.currentTarget.value);
-      setIsSearching(false);
     }
   };
 
@@ -92,11 +95,15 @@ const Navbar: React.FC = () => {
     console.log('Navigating to board:', boardId);
   };
 
-  // Focus the input when the modal is opened
+  function emptyResults() {
+    setSearchResults({ columns: [], cardTitles: [], cardMessages: [] });
+  }
+
+  // Clear search results when the modal is closed
   useEffect(() => {
-    if (isSearchModalOpen && inputRef.current) {
-      inputRef.current.focus(); // Focus the input field
-      inputRef.current.select();
+    if (!isSearchModalOpen) {
+      emptyResults();
+      setSearchStatus('idle');
     }
   }, [isSearchModalOpen]);
 
@@ -169,49 +176,80 @@ const Navbar: React.FC = () => {
       )}
 
       <Dialog.Root open={isSearchModalOpen} onOpenChange={setIsSearchModalOpen}>
-        <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50" />
-        <Dialog.Content className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-md rounded-md bg-gray-400 p-6">
-            <span>
-              <Dialog.Title className="text-lg font-bold">Cerca</Dialog.Title>
-              <button
-                className="mt-4 rounded-md bg-blue-500 px-4 py-2 text-black"
-                onClick={closeSearchModal}
-              >
+        <Dialog.Overlay
+          className="fixed inset-0 bg-black bg-opacity-50"
+          onClick={() => {
+            console.log('Overlay clicked, closing modal');
+            setIsSearchModalOpen(false);
+          }}
+        />
+        <Dialog.Content
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="w-full max-w-md scale-100 transform rounded-lg bg-white p-6 shadow-xl transition-all duration-300 ease-out">
+            <span className="flex items-center justify-between">
+              <Dialog.Title className="text-2xl font-semibold text-gray-800">
+                Cerca
+              </Dialog.Title>
+              <Dialog.Close className="text-sm font-medium text-blue-500 transition duration-200 hover:text-blue-700">
                 Chiudi
-              </button>
+              </Dialog.Close>
             </span>
             <input
-              ref={inputRef} // Attach the ref to the input
+              ref={inputRef}
               type="text"
+              autoFocus
               placeholder="Cerca..."
-              className="mt-4 w-full rounded-md bg-gray-200 px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500"
+              className="mt-4 w-full rounded-md border-2 border-gray-300 bg-gray-100 px-4 py-2 text-gray-700 transition duration-300 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
               onKeyDown={handleKeyDown}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                emptyResults();
+                setSearchStatus('nextSearch');
+              }}
             />
-            {isSearching && (
-              <div className="mt-2 text-gray-400">Cerca in corso...</div>
-            )}
             <div className="mt-4 max-h-60 overflow-y-auto">
               {isSearchEmpty ? (
-                <div className="text-center text-gray-500">
-                  Nessun Risultato trovato
+                <div className="mt-4">
+                  {searchStatus === 'idle' && (
+                    <p className="text-center text-sm font-normal text-gray-700 opacity-80">
+                      Prova ad usare i tag{' '}
+                      <span className="font-medium text-blue-600">@Column</span>{' '}
+                      e <span className="font-medium text-blue-600">@Card</span>{' '}
+                      per cercare!
+                    </p>
+                  )}
+                  {searchStatus === 'searching' && (
+                    <p className="animate-wave text-center text-sm font-normal text-blue-500 opacity-90">
+                      Ricerca in corso...
+                    </p>
+                  )}
+                  {searchStatus === 'complete' && (
+                    <p className="text-center text-sm font-normal text-gray-600 opacity-80">
+                      Nessun Risultato Trovato
+                    </p>
+                  )}
                 </div>
               ) : (
                 <>
                   {searchResults.columns &&
                     searchResults.columns.length > 0 && (
                       <div>
-                        <h3 className="font-bold text-gray-800">Colonne</h3>
+                        <h3 className="mb-2 font-semibold text-gray-800">
+                          Colonne
+                        </h3>
                         <ul>
                           {searchResults.columns.map((column) => (
                             <li
                               key={column.id}
-                              className="cursor-pointer py-2 text-gray-600"
+                              className="cursor-pointer rounded-md px-4 py-2 text-gray-700 transition duration-200 hover:bg-gray-100"
                               onClick={() => goToBoard(column.boardId)}
                             >
                               {highlightSearchQuery(column.title, searchQuery)}{' '}
-                              (Board ID: {column.boardId})
+                              <span className="text-xs text-gray-400">
+                                (Board ID: {column.boardId})
+                              </span>
                             </li>
                           ))}
                         </ul>
@@ -220,16 +258,20 @@ const Navbar: React.FC = () => {
                   {searchResults.cardTitles &&
                     searchResults.cardTitles.length > 0 && (
                       <div className="mt-4">
-                        <h3 className="font-bold text-gray-800">Card Titoli</h3>
+                        <h3 className="mb-2 font-semibold text-gray-800">
+                          Card Titoli
+                        </h3>
                         <ul>
                           {searchResults.cardTitles.map((card) => (
                             <li
                               key={card.id}
-                              className="cursor-pointer py-2 text-gray-600"
+                              className="cursor-pointer rounded-md px-4 py-2 text-gray-700 transition duration-200 hover:bg-gray-100"
                               onClick={() => goToBoard(card.boardId)}
                             >
                               {highlightSearchQuery(card.title, searchQuery)}{' '}
-                              (Board ID: {card.boardId})
+                              <span className="text-xs text-gray-400">
+                                (Board ID: {card.boardId})
+                              </span>
                             </li>
                           ))}
                         </ul>
@@ -238,18 +280,20 @@ const Navbar: React.FC = () => {
                   {searchResults.cardMessages &&
                     searchResults.cardMessages.length > 0 && (
                       <div className="mt-4">
-                        <h3 className="font-bold text-gray-800">
+                        <h3 className="mb-2 font-semibold text-gray-800">
                           Messaggi Card
                         </h3>
                         <ul>
                           {searchResults.cardMessages.map((card) => (
                             <li
                               key={card.id}
-                              className="cursor-pointer py-2 text-gray-600"
+                              className="cursor-pointer rounded-md px-4 py-2 text-gray-700 transition duration-200 hover:bg-gray-100"
                               onClick={() => goToBoard(card.boardId)}
                             >
                               {highlightSearchQuery(card.message, searchQuery)}{' '}
-                              (Board ID: {card.boardId})
+                              <span className="text-xs text-gray-400">
+                                (Board ID: {card.boardId})
+                              </span>
                             </li>
                           ))}
                         </ul>
