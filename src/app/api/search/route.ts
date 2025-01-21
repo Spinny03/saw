@@ -14,21 +14,22 @@ export async function GET(request: Request) {
     return new Response('Query is required', { status: 400 });
   }
 
-  let searchQuery = query;
-  let searchType: 'card' | 'column' | 'both' = 'both';
+  const tags = {
+    card: query.includes('@Card'),
+    column: query.includes('@Column'),
+    board: query.includes('@Board'),
+  };
 
-  if (query.includes('@Card')) {
-    searchQuery = query.replace('@Card', '').trim();
-    searchType = 'card';
-  } else if (query.includes('@Column')) {
-    searchQuery = query.replace('@Column', '').trim();
-    searchType = 'column';
-  }
+  let searchQuery = query
+    .replace('@Card', '')
+    .replace('@Column', '')
+    .replace('@Board', '')
+    .trim();
 
   const truncateMessage = (message: string, searchQuery: string) => {
     const words = message.split(' ');
-    const start = Math.max(0, words.indexOf(searchQuery) - 2); // Due parole prima della parola cercata
-    const end = Math.min(words.length, words.indexOf(searchQuery) + 3); // Tre parole dopo la parola cercata
+    const start = Math.max(0, words.indexOf(searchQuery) - 2); // Two words before the query
+    const end = Math.min(words.length, words.indexOf(searchQuery) + 3); // Three words after the query
 
     const truncatedWords = words.slice(start, end);
 
@@ -40,11 +41,39 @@ export async function GET(request: Request) {
   };
 
   try {
+    let boards: any[] = [];
     let columns: any[] = [];
     let cardTitles: any[] = [];
     let cardMessages: any[] = [];
 
-    if (searchType === 'both' || searchType === 'column') {
+    if (tags.board || (!tags.card && !tags.column)) {
+      if (tags.board || (!tags.card && !tags.column)) {
+        boards = await prisma.board.findMany({
+          where: {
+            title: {
+              contains: searchQuery,
+              mode: 'insensitive',
+            },
+          },
+          select: {
+            id: true,
+            title: true,
+            owner: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        });
+
+        boards = boards.map((board) => ({
+          ...board,
+          ownerName: board.owner.name, // adding ownerName to the board result
+        }));
+      }
+    }
+
+    if (tags.column || (!tags.card && !tags.board)) {
       columns = await prisma.column.findMany({
         where: {
           title: {
@@ -60,7 +89,7 @@ export async function GET(request: Request) {
       });
     }
 
-    if (searchType === 'both' || searchType === 'card') {
+    if (tags.card || (!tags.column && !tags.board)) {
       cardTitles = await prisma.card.findMany({
         where: {
           title: {
@@ -99,7 +128,7 @@ export async function GET(request: Request) {
         },
       });
 
-      // Troncamento dei messaggi
+      // Truncate messages
       cardMessages = cardMessages.map((card) => ({
         ...card,
         message: truncateMessage(card.message, searchQuery),
@@ -108,6 +137,12 @@ export async function GET(request: Request) {
 
     return new Response(
       JSON.stringify({
+        boards: boards.map((board) => ({
+          title: board.title,
+          id: board.id,
+          ownerId: board.ownerId,
+          owner: board.owner,
+        })),
         columns: columns.map((column) => ({
           title: column.title,
           id: column.id,
@@ -134,7 +169,7 @@ export async function GET(request: Request) {
       }
     );
   } catch (error) {
-    console.error('Errore durante la ricerca:', error);
+    console.error('Error during search:', error);
     return new Response('Internal Server Error', { status: 500 });
   }
 }

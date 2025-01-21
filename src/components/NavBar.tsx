@@ -11,6 +11,11 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import LoginDialog from './LogInDialog';
 
 type SearchResult = {
+  boards: Array<{
+    id: number;
+    title: string;
+    owner: { name: string };
+  }>;
   columns: Array<{
     id: number;
     title: string;
@@ -38,6 +43,7 @@ const Navbar: React.FC = () => {
     'idle' | 'searching' | 'complete' | 'nextSearch'
   >('idle');
   const [searchResults, setSearchResults] = useState<SearchResult>({
+    boards: [],
     columns: [],
     cardTitles: [],
     cardMessages: [],
@@ -66,6 +72,7 @@ const Navbar: React.FC = () => {
 
       const data: SearchResult = await response.json();
       setSearchResults(data);
+      console.log('Risultati ricerca:', data);
       setSearchStatus('complete'); // Set status to complete after receiving results
     } catch (error) {
       console.error('Errore durante la ricerca:', error);
@@ -80,6 +87,8 @@ const Navbar: React.FC = () => {
   };
 
   const highlightSearchQuery = (text: string, query: string) => {
+    if (!text) return '';
+
     const parts = text.split(new RegExp(`(${query})`, 'gi'));
     return parts.map((part, index) =>
       part.toLowerCase() === query.toLowerCase() ? (
@@ -98,7 +107,12 @@ const Navbar: React.FC = () => {
   };
 
   function emptyResults() {
-    setSearchResults({ columns: [], cardTitles: [], cardMessages: [] });
+    setSearchResults({
+      boards: [],
+      columns: [],
+      cardTitles: [],
+      cardMessages: [],
+    });
   }
 
   // Clear search results when the modal is closed
@@ -113,7 +127,8 @@ const Navbar: React.FC = () => {
   const isSearchEmpty = !(
     searchResults.columns.length > 0 ||
     searchResults.cardTitles.length > 0 ||
-    searchResults.cardMessages.length > 0
+    searchResults.cardMessages.length > 0 ||
+    searchResults.boards.length > 0
   );
 
   return (
@@ -316,6 +331,27 @@ const Navbar: React.FC = () => {
                         </ul>
                       </div>
                     )}
+                  {searchResults.boards && searchResults.boards.length > 0 && (
+                    <div className="mt-4">
+                      <h3 className="mb-2 font-semibold text-gray-800">
+                        Boards
+                      </h3>
+                      <ul>
+                        {searchResults.boards.map((board) => (
+                          <li
+                            key={board.id}
+                            className="cursor-pointer rounded-md px-4 py-2 text-gray-700 transition duration-200 hover:bg-gray-100"
+                            onClick={() => goToBoard(board.id)}
+                          >
+                            {highlightSearchQuery(board.title, searchQuery)}{' '}
+                            <span className="text-xs text-gray-400">
+                              (Owner: {board.owner.name}, Board ID: {board.id})
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </>
               )}
             </div>
