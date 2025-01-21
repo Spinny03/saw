@@ -75,6 +75,9 @@ export async function PUT(
   if (!board || !board.users.find((user) => user.id === userId)) {
     return new Response('Board not found or access denied', { status: 404 });
   }
+  if (userId !== board.ownerId) {
+    return new Response('Unauthorized', { status: 401 });
+  }
 
   // Update the board title
   try {

@@ -42,7 +42,14 @@ export async function POST(
   if (!userId) {
     return new Response('Unauthorized', { status: 401 });
   }
-
+  const board = await prisma.board.findUnique({
+    where: {
+      id: parseInt(boardId),
+    },
+  });
+  if (userId !== board?.ownerId) {
+    return new Response('Unauthorized', { status: 401 });
+  }
   const boardIdParsed = parseInt(boardId, 10);
   const { title, boardOrder } = await request.json();
   const boardOrderParsed = parseInt(boardOrder, 10);

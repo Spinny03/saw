@@ -153,59 +153,46 @@ export default function Column({
     setCards(column.cards || []); // Aggiorna lo stato quando la colonna viene modificata
   }, [column]);
 
-  if (owner == currUser) {
-    return (
-      <div
-        ref={setNodeRef}
-        key={column.id}
-        className="m-1 flex-shrink-0 rounded-md bg-gray-200 p-4"
-        style={style}
-        {...attributes}
-        {...listeners}
-      >
-        <div className="flex justify-between">
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onBlur={handleTitleBlur}
-            className="w-full border-none bg-gray-200 text-lg font-bold focus:outline-none"
-          />
+  return (
+    <div
+      ref={setNodeRef}
+      key={column.id}
+      className="m-1 flex-shrink-0 rounded-md bg-gray-200 p-4"
+      style={style}
+      {...attributes}
+      {...listeners}
+    >
+      <div className="flex justify-between">
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          onBlur={handleTitleBlur}
+          readOnly={owner !== currUser}
+          className="w-full border-none bg-gray-200 text-lg font-bold focus:outline-none"
+        />
+        {owner === currUser && (
           <button
             onClick={() => deleteColumn(column)}
             className="grey-500 rounded-md p-1 hover:bg-gray-300"
           >
             <TrashIcon />
           </button>
-        </div>
-        <div className="mt-2">
-          {cards?.map((card: PrismaCard) => (
-            <Card
-              key={card.id}
-              card={card}
-              deleteCard={deleteCard}
-              editable={owner === currUser}
-            />
-          ))}
+        )}
+      </div>
+      <div className="mt-2">
+        {cards?.map((card: PrismaCard) => (
+          <Card
+            key={card.id}
+            card={card}
+            deleteCard={deleteCard}
+            editable={owner === currUser}
+          />
+        ))}
+        {owner === currUser && (
           <ModalCard addCard={addCard} setIsDraggable={setIsDraggable} />
-        </div>
+        )}
       </div>
-    );
-  } else {
-    return (
-      <div key={column.id} className="rounded-md bg-gray-200 p-4">
-        <h2 className="text-lg font-bold">{column.title}</h2>
-        <div className="mt-2">
-          {cards?.map((card: PrismaCard) => (
-            <Card
-              key={card.id}
-              card={card}
-              deleteCard={deleteCard}
-              editable={owner === currUser}
-            />
-          ))}
-        </div>
-      </div>
-    );
-  }
+    </div>
+  );
 }

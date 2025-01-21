@@ -11,7 +11,14 @@ export async function PUT(
   if (!userIdAuth) {
     return new Response('Unauthorized', { status: 401 });
   }
-
+  const board = await prisma.board.findUnique({
+    where: {
+      id: parseInt(boardId),
+    },
+  });
+  if (board?.ownerId !== userIdAuth) {
+    return new Response('Unauthorized', { status: 401 });
+  }
   // Parse the body
   const {
     usersToAdd,

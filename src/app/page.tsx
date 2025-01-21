@@ -14,6 +14,7 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext } from '@dnd-kit/sortable';
 import ChatButton from '@/components/ChatButton';
+import { TrashIcon } from '@radix-ui/react-icons';
 
 interface ColumnType extends PrismaColumn {
   cards: PrismaCard[];
@@ -158,6 +159,8 @@ export default function HomePage() {
     }
   };
 
+  function deleteBoard() {}
+
   const handleTitleBlur = () => {
     if (boardTitle !== board.title) {
       setBoard((prevBoard: any) => ({ ...prevBoard, title: boardTitle }));
@@ -214,9 +217,16 @@ export default function HomePage() {
                   type="text"
                   value={boardTitle}
                   onChange={(e) => setBoardTitle(e.target.value)}
+                  readOnly={session?.user.id !== board.ownerId}
                   onBlur={handleTitleBlur}
-                  className="rounded-md border-none bg-transparent px-2 text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`rounded-md border-none bg-transparent px-2 text-lg font-semibold text-gray-800 ${session?.user.id === board.ownerId ? 'focus:outline-none focus:ring-2 focus:ring-blue-500' : ''}`}
                 />
+                <button
+                  onClick={() => deleteBoard()}
+                  className="grey-500 rounded-md p-1 hover:bg-gray-300"
+                >
+                  <TrashIcon />
+                </button>
               </div>
             )}
 
