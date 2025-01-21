@@ -14,7 +14,7 @@ require 'utils.php';
 /*                                            */
 /* DO NOT UPLOAD TEST FILES ON SAW21!         */
 /**********************************************/
-$baseurl = "http://localhost:3000";
+$baseurl = "https://saw.spinny.dev";
 
 echo "[+] Testing Registration - Login - Show Profile\n";
 

@@ -28,7 +28,7 @@ function generate_random_password()
 
 function getCsrfToken($ch)
 {
-    curl_setopt($ch, CURLOPT_URL, "http://localhost:3000/api/auth/csrf");
+    curl_setopt($ch, CURLOPT_URL, "https://saw.spinny.dev/api/auth/csrf");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPGET, true); 
     curl_setopt($ch, CURLOPT_COOKIEJAR, "cookies");

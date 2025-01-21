@@ -109,7 +109,6 @@ export const authOptions: AuthOptions = {
   },
   callbacks: {
     async session({ session, token }) {
-      console.log('Session:', session);
       if (session.user && token.sub) {
         session.user.id = token.sub;
         let user = await prisma.user.findFirst({
@@ -123,7 +122,6 @@ export const authOptions: AuthOptions = {
         session.user.surname = user.surname || '';
         session.user.name = user.name || '';
       }
-      console.log('Session:', session);
       return session;
     },
   },
@@ -168,7 +166,11 @@ export const authOptions: AuthOptions = {
 
       await prisma.user.update({
         where: { id: userId },
-        data: { image: url, name: name, surname: surname },
+        data: {
+          image: url,
+          ...(name && { name: name }),
+          ...(surname && { surname: surname }),
+        },
       });
     },
     async signOut(message) {
