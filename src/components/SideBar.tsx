@@ -145,7 +145,12 @@ export default function SideBar({
                         : 'bg-gray-700 text-white'
                     }`}
                   >
-                    {block.id}
+                    <Tooltip content={block.title}>
+                      <span>
+                        {block.title[0]}
+                        {block.title[1]}
+                      </span>
+                    </Tooltip>
                   </Item>
                 ))
             : null}

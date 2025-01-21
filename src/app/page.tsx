@@ -67,6 +67,25 @@ export default function HomePage() {
     setLoading(false);
   }, [status, session, router]);
 
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      const eventVals = {
+        key: event.key,
+        boardId: event.newValue,
+      };
+      console.log('Storage event:', eventVals);
+      if (eventVals.key === 'selectedBoard') {
+        handleBlockSelect(eventVals.boardId ?? '');
+        console.log('Selected board:', eventVals.boardId);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
   const handleBlockSelect = async (blockId: string) => {
     setSelectedBoard(blockId);
     try {

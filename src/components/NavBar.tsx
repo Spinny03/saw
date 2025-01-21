@@ -102,7 +102,12 @@ const Navbar: React.FC = () => {
   const goToBoard = (boardId: number) => {
     closeSearchModal();
     sessionStorage.setItem('selectedBoard', boardId.toString());
-    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(
+      new StorageEvent('storage', {
+        key: 'selectedBoard',
+        newValue: boardId.toString(),
+      })
+    );
     console.log('Navigating to board:', boardId);
   };
 
