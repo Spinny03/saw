@@ -1,5 +1,6 @@
 import { getUserId } from '@/libs/userClient';
 import { prisma } from '@/prisma';
+import bcrypt from 'bcrypt';
 
 import { User } from '@prisma/client';
 
@@ -26,7 +27,7 @@ export async function POST(request: Request) {
       email: body.email,
       name: body.name,
       surname: body.surname,
-      password: body.password,
+      password: await bcrypt.hash(body.password, 10),
       image: imageUrl,
     },
   });

@@ -4,6 +4,7 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '@/prisma';
 import type { AuthOptions, DefaultSession } from 'next-auth';
 import { put } from '@vercel/blob';
+import bcrypt from 'bcrypt';
 const path = require('path');
 declare module 'next-auth' {
   interface Session {
@@ -16,9 +17,18 @@ declare module 'next-auth' {
 }
 
 function compare(password: string, hash: string) {
-  return password === hash;
   return new Promise((resolve, reject) => {
-    return true;
+    bcrypt.compare(
+      password,
+      hash,
+      (err: Error | undefined, result: boolean) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      }
+    );
   });
 }
 
