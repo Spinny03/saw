@@ -8,6 +8,7 @@ import ModalCard from './ModalCard';
 import { TrashIcon } from '@radix-ui/react-icons';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import Spinner from './Spinner';
 
 // Estensione del tipo PrismaColumn per includere 'cards'
 interface ColumnType extends PrismaColumn {
@@ -63,6 +64,7 @@ export default function Column({
   const [title, setTitle] = useState(column.title);
   const { toast, setToast } = useToast();
   const [isDraggrable, setIsDraggable] = useState(false);
+  const [deletingColumn, setDeletingColumn] = useState(false);
 
   const { setNodeRef, attributes, listeners, transform, transition } =
     useSortable({
@@ -173,10 +175,16 @@ export default function Column({
         />
         {owner === currUser && (
           <button
-            onClick={() => deleteColumn(column)}
-            className="grey-500 rounded-md p-1 hover:bg-gray-300"
+            onClick={() => {
+              setDeletingColumn(true);
+              deleteColumn(column.id);
+              setDeletingColumn(false);
+            }}
+            className={`grey-500 items-center justify-center rounded-md p-1 ${
+              !deletingColumn ? 'hover:bg-gray-300' : ''
+            }`}
           >
-            <TrashIcon />
+            {deletingColumn ? <Spinner /> : <TrashIcon />}
           </button>
         )}
       </div>

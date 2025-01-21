@@ -70,7 +70,7 @@ export default function LandingPage() {
           {' '}
           {/* Modifica qui: items-center -> items-start */}
           <img
-            src="/lorempixel.jpg"
+            src="/coralLanding.gif"
             alt="CoralApp Example"
             className="mr-8 w-full rounded-lg shadow-lg lg:mb-0 lg:w-1/2"
           />

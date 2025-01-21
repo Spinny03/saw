@@ -9,13 +9,17 @@ import { useRouter } from 'next/navigation';
 import { Column as PrismaColumn, Card as PrismaCard } from '@prisma/client';
 import {
   DndContext,
+  DragEndEvent,
+  DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { SortableContext } from '@dnd-kit/sortable';
+import { arrayMove, SortableContext } from '@dnd-kit/sortable';
 import ChatButton from '@/components/ChatButton';
 import { TrashIcon } from '@radix-ui/react-icons';
+import LoadingScreen from '@/components/LoadingScreen';
+import Spinner from '@/components/Spinner';
 
 interface ColumnType extends PrismaColumn {
   cards: PrismaCard[];
@@ -25,13 +29,16 @@ export default function HomePage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [selectedBoard, setSelectedBoard] = useState<string | null>(null);
+  const [activeColumn, setActiveColumn] = useState<ColumnType | null>(null);
   const [board, setBoard] = useState<any>([]);
   const [boardTitle, setBoardTitle] = useState<string>(''); // Board title state
   const [columns, setColumns] = useState<ColumnType[]>([]);
+  const [addingCol, setAddingCol] = useState<boolean>(false);
   const columnsIds = useMemo(() => columns.map((c) => c.id), [columns]);
 
   const [sidebarTrigger, setSidebarTrigger] = useState<number>(0);
   const [loading, setLoading] = useState(true);
+  const [loadingColumns, setLoadingColumns] = useState(true);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -90,6 +97,7 @@ export default function HomePage() {
 
   const handleBlockSelect = async (blockId: string) => {
     setSelectedBoard(blockId);
+    setLoadingColumns(true);
     try {
       const response = await fetch(`/api/board/${blockId}`);
       const data = await response.json();
@@ -103,6 +111,7 @@ export default function HomePage() {
     } catch (error) {
       console.error('Error fetching columns:', error);
     }
+    setLoadingColumns(false);
   };
 
   const editUsers = async (usersToAdd: string[], usersToRemove: string[]) => {
@@ -188,6 +197,7 @@ export default function HomePage() {
 
   const addColumn = async () => {
     if (!selectedBoard) return;
+    setAddingCol(true);
     try {
       const response = await fetch(`/api/board/${selectedBoard}/columns`, {
         method: 'POST',
@@ -212,10 +222,71 @@ export default function HomePage() {
     } catch (error) {
       console.error('Error adding column:', error);
     }
+    setAddingCol(false);
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoadingScreen />;
+  }
+
+  // funzioni per il Drago
+
+  function onDragStart(event: DragStartEvent) {
+    if (event.active.data.current?.type === 'column') {
+      setActiveColumn(event.active.data.current.column);
+    }
+  }
+
+  const deleteColumn = async (columnId: number) => {
+    try {
+      const response = await fetch(`/api/columns/${columnId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        setColumns((columns) =>
+          columns.filter((column) => column.id !== columnId)
+        );
+      }
+    } catch (error) {
+      console.error('Error deleting column:', error);
+    }
+  };
+
+  function moveColumn(fromIndex: number, toIndex: number) {
+    setColumns((columns) => {
+      const updatedColumns = arrayMove(columns, fromIndex, toIndex);
+      updatedColumns.forEach((column, index) => {
+        if (column.boardOrder !== index) {
+          column.boardOrder = index;
+          fetch(`/api/columns/${column.id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ boardOrder: index }),
+          });
+        }
+      });
+      return updatedColumns;
+    });
+  }
+
+  function onDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    if (!over) return;
+    const activeColumnId = active.id;
+    const overColumnId = over.id;
+
+    if (activeColumnId === overColumnId) return;
+    const activeIndex = columns.findIndex((c) => c.id === activeColumnId);
+    const overIndex = columns.findIndex((c) => c.id === overColumnId);
+
+    moveColumn(activeIndex, overIndex);
   }
 
   if (session) {
@@ -226,7 +297,9 @@ export default function HomePage() {
           initialBlock={selectedBoard ?? ''}
           sidebarTrigger={sidebarTrigger}
         />
-        {selectedBoard && selectedBoard !== '' ? (
+        {loadingColumns ? (
+          <LoadingScreen />
+        ) : selectedBoard && selectedBoard !== '' ? (
           <div className="mb-20 flex-1 px-5" id="boardContents">
             <div className="flex items-center justify-between pb-10 pt-2">
               {/* Editable Board Title */}
@@ -253,8 +326,10 @@ export default function HomePage() {
               {/* "Utenti" Section */}
               {board.users && (
                 <div className="flex items-center gap-2 rounded-lg bg-white p-4 shadow-md">
-                  <span className="text-sm font-medium text-gray-700">
-                    👥 Utenti:
+                  <span className="text-sm font-semibold text-gray-600">
+                    Gestisci
+                    <br />
+                    Utenti:
                   </span>
                   <ModalBoard
                     editUsers={editUsers}
@@ -265,7 +340,11 @@ export default function HomePage() {
                 </div>
               )}
             </div>
-            <DndContext sensors={sensors}>
+            <DndContext
+              onDragStart={onDragStart}
+              onDragEnd={onDragEnd}
+              sensors={sensors}
+            >
               <div className="flex flex-col gap-4 overflow-y-auto overflow-x-visible lg:flex-row lg:overflow-x-auto lg:overflow-y-visible">
                 <SortableContext items={columnsIds}>
                   {columns
@@ -274,20 +353,18 @@ export default function HomePage() {
                       <Column
                         key={column.id}
                         columnProp={column}
-                        deleteColumn={() => {}}
+                        deleteColumn={deleteColumn}
                         owner={board.ownerId}
                       />
                     ))}
                 </SortableContext>
                 {selectedBoard && session?.user.id === board.ownerId && (
-                  <div className="w-full pb-4">
-                    <button
-                      onClick={addColumn}
-                      className="mt-2 w-12 rounded-md bg-blue-500 p-3 text-white"
-                    >
-                      +
-                    </button>
-                  </div>
+                  <button
+                    onClick={addColumn}
+                    className="ml-1 mt-1 h-12 w-12 flex-shrink-0 items-center justify-center rounded-md bg-blue-500 text-white"
+                  >
+                    {addingCol ? <Spinner /> : '+'}
+                  </button>
                 )}
               </div>
             </DndContext>

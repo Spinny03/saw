@@ -33,7 +33,7 @@ export default function SideBar({
   };
 
   function handleNewBoard() {
-    createBoard((blocks?.length || 0).toString() + '_Board');
+    createBoard(('B' + blocks?.length || 0).toString());
   }
 
   const createBoard = async (boardName: string) => {
@@ -113,6 +113,7 @@ export default function SideBar({
                       <span>
                         {block.title[0]}
                         {block.title[1]}
+                        {block.title[2]}
                       </span>
                     </Tooltip>
                   </Item>

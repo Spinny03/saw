@@ -41,10 +41,15 @@ export default {
               '0 0 4px rgba(96, 165, 250, 0.7), 0 0 10px rgba(96, 165, 250, 0.5)',
           },
         },
+        spin: {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
       },
       animation: {
         glow: 'glow 1.5s ease-in-out infinite',
         wave: 'wave 2s ease-in-out infinite', // Adding the wave animation
+        spin: 'spin 1s linear infinite', // Adding the spin animation
       },
     },
   },

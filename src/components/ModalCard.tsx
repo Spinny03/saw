@@ -63,7 +63,6 @@ export default function ModalCard({
               </label>
               <textarea
                 id="input-contenuto"
-                autoFocus
                 className="mt-2 block w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm text-gray-900 shadow-sm sm:leading-6"
                 onChange={(e) => setForm({ ...form, message: e.target.value })}
                 defaultValue={''}

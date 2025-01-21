@@ -55,13 +55,12 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({
           },
           body: JSON.stringify({ message: input }),
         });
-
         if (response.ok) {
           const newMessage = await response.json();
           console.log('New Message:', newMessage);
-          console.log(userId);
           setMessages([...messages, newMessage]);
           setInput('');
+          console.log(userId);
         } else {
           console.error('Error sending message');
         }

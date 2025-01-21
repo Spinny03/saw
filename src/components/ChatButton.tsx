@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import { useEffect } from 'react';
 import ChatOverlay from './ChatOverlay';
 
 interface ChatButtonProps {
@@ -8,6 +9,10 @@ interface ChatButtonProps {
 
 const ChatButton = ({ selectedBoard }: ChatButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [selectedBoard]);
 
   const toggleChat = () => {
     setIsOpen(!isOpen);

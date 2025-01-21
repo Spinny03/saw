@@ -1,6 +1,6 @@
 'use client';
 import { Card as CardType } from '@prisma/client';
-import { Cross1Icon, BellIcon } from '@radix-ui/react-icons';
+import { Cross1Icon, StarIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 
 interface CardProps {
@@ -48,7 +48,7 @@ const useToast = () => {
 export default function Card({ card, deleteCard, editable }: CardProps) {
   const [title, setTitle] = useState(card.title);
   const [message, setMessage] = useState(card.message);
-  const [showDeadline, setShowDeadline] = useState(false);
+  const [showFavourite, setShowFavourite] = useState(false);
   const { toast, setToast } = useToast();
 
   const showToast = (message: string) => {
@@ -96,35 +96,21 @@ export default function Card({ card, deleteCard, editable }: CardProps) {
         onBlur={handleMessageBlur}
         className="mt-2 w-full resize-none border-none focus:outline-none"
       />
-      <span className="flex items-center">
-        {showDeadline && (
-          <div className="flex space-x-2">
-            <input
-              type="date"
-              value={card.deadline ? card.deadline.getDate() : ''}
-            />
-            <input
-              type="time"
-              value={card.deadline ? card.deadline.getTime() : ''}
-            />
-          </div>
-        )}
-        <button
-          className="ml-auto"
-          onClick={() => {
-            if (editable) {
-              setShowDeadline((prev) => !prev);
-            }
-          }}
-        >
-          <BellIcon
-            className={`h-5 w-5 ${
-              showDeadline ? 'text-gray-900' : 'text-gray-300'
-            }`}
-            style={{ strokeWidth: 2 }}
-          />
-        </button>
-      </span>
+      <button
+        className="mb-1 ml-auto mr-1 flex"
+        onClick={() => {
+          if (editable) {
+            setShowFavourite((prev) => !prev);
+          }
+        }}
+      >
+        <StarIcon
+          className={`h-5 w-5 ${
+            showFavourite ? 'text-gray-900' : 'text-gray-300'
+          }`}
+          style={{ strokeWidth: 2 }}
+        />
+      </button>
     </div>
   );
 }
