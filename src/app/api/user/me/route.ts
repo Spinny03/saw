@@ -1,5 +1,7 @@
 import { getUserId } from '@/libs/userClient';
 import { prisma } from '@/prisma';
+import { put } from '@vercel/blob';
+import path from 'path';
 
 import { User } from '@prisma/client';
 
@@ -31,16 +33,22 @@ export async function PUT(request: Request) {
     return new Response('User ID is required', { status: 400 });
   }
 
-  const body = await request.json();
-  const { email, name, surname } = body;
+  const formData = await request.formData();
+  const email = formData.get('email') as string;
+  const name = formData.get('name') as string;
+  const surname = formData.get('surname') as string;
+  const password = formData.get('password') as string;
+  const image = formData.get('image') as File | null;
 
-  const randomColorForAvatar = Math.floor(Math.random() * 16777215).toString(
-    16
-  );
-  const imageUrl =
-    name && surname
-      ? `https://ui-avatars.com/api/?name=${name}+${surname}&background=random&color=${randomColorForAvatar}`
-      : undefined;
+  let imageUrl;
+  if (image) {
+    const filePath = `profile/${userId}${path.extname(image.name)}`;
+    const buffer = Buffer.from(await image.arrayBuffer());
+    const { url } = await put(filePath, buffer, {
+      access: 'public',
+    });
+    imageUrl = url;
+  }
 
   try {
     const updatedUser = await prisma.user.update({

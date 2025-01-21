@@ -3,9 +3,8 @@
 
 import { useSession } from 'next-auth/react';
 import { Button } from '@radix-ui/themes';
-import { useEffect } from 'react';
-
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import path from 'path';
 
 export default function ProfilePage() {
   const { data: session } = useSession();
@@ -13,6 +12,7 @@ export default function ProfilePage() {
   const [name, setName] = useState(session?.user.name || '');
   const [surname, setSurname] = useState(session?.user.surname || '');
   const [password, setPassword] = useState('');
+  const [profileImage, setProfileImage] = useState<File | null>(null);
 
   useEffect(() => {
     setEmail(session?.user.email || '');
@@ -20,12 +20,29 @@ export default function ProfilePage() {
     setSurname(session?.user.surname || '');
   }, [session]);
 
-  const handleSaveChanges = () => {
+  const handleImageClick = () => {
+    document.getElementById('profileImageInput')?.click();
+  };
+
+  const handleSaveChanges = async () => {
     console.log('Email:', email);
     console.log('Name:', name);
     console.log('Surname:', surname);
     console.log('Password:', password);
-    // Add logic to save changes
+
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('name', name);
+    formData.append('surname', surname);
+    formData.append('password', password);
+    if (profileImage) {
+      formData.append('image', profileImage);
+    }
+
+    fetch('/api/user/me', {
+      method: 'PUT',
+      body: formData,
+    });
   };
 
   if (session) {
@@ -37,10 +54,14 @@ export default function ProfilePage() {
               <img
                 src={session.user.image}
                 alt="Avatar"
-                className="mr-4 h-16 w-16 rounded-full"
+                className="mr-4 h-16 w-16 cursor-pointer rounded-full"
+                onClick={handleImageClick}
               />
             ) : (
-              <div className="mr-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-500 text-2xl font-bold text-white">
+              <div
+                className="mr-4 flex h-16 w-16 cursor-pointer items-center justify-center rounded-full bg-blue-500 text-2xl font-bold text-white"
+                onClick={handleImageClick}
+              >
                 {session.user.name?.slice(0, 2).toUpperCase()}
               </div>
             )}
@@ -95,6 +116,15 @@ export default function ProfilePage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <input
+                type="file"
+                accept="image/*"
+                id="profileImageInput"
+                onChange={(e) => setProfileImage(e.target.files?.[0] || null)}
+                className="hidden"
               />
             </div>
             <Button
