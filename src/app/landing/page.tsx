@@ -114,15 +114,17 @@ export default function LandingPage() {
         <section className="mb-20">
           <h2 className="mb-4 text-3xl font-bold">Il Nostro Team</h2>
           <div className="flex justify-around">
-            <div className="text-center">
-              <img
-                src="/memoji.png"
-                alt="Filippo Spinella"
-                className="mb-4 rounded-full border-4 border-teal-900"
-              />
-              <p className="font-semibold">Filippo Spinella</p>
-              <p>Fondatore</p>
-            </div>
+            <a href="https://github.com/Spinny03" target="_blank">
+              <div className="text-center">
+                <img
+                  src="/memoji.png"
+                  alt="Filippo Spinella"
+                  className="mb-4 rounded-full border-4 border-teal-900"
+                />
+                <p className="font-semibold">Filippo Spinella</p>
+                <p>Fondatore</p>
+              </div>
+            </a>
             <a href="https://github.com/Guracc" target="_blank">
               <div className="text-center">
                 <img
