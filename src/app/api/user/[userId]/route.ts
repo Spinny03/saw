@@ -8,9 +8,12 @@ export async function GET(
   { params }: { params: Promise<{ userId: string }> }
 ) {
   const { userId } = await params;
-  const user: User | null = await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: {
       id: userId,
+    },
+    omit: {
+      password: true,
     },
   });
 

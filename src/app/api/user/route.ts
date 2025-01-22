@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 import { User } from '@prisma/client';
 
 export async function GET() {
-  const user: User[] = await prisma.user.findMany({});
+  const user = await prisma.user.findMany({ omit: { password: true } });
 
   return new Response(JSON.stringify(user), {
     status: 200,
@@ -29,6 +29,9 @@ export async function POST(request: Request) {
       surname: body.surname,
       password: await bcrypt.hash(body.password, 10),
       image: imageUrl,
+    },
+    omit: {
+      password: true,
     },
   });
 

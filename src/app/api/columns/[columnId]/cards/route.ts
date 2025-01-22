@@ -45,7 +45,6 @@ export async function POST(
       message,
       columnId: parseInt(columnId),
       columnOrder: columnOrderParsed,
-      deadline: null,
     },
   });
 

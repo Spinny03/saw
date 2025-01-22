@@ -12,9 +12,12 @@ export async function GET() {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  const user: User | null = await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: {
       id: userId,
+    },
+    omit: {
+      password: true,
     },
   });
 
@@ -58,16 +61,18 @@ export async function PUT(request: Request) {
   // Se viene fornita una nuova password, verifica quella corrente
   if (newPassword) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user || !user.password) {
+    if (!user) {
       return new Response('User not found', { status: 404 });
     }
-
-    const isValidPassword = await bcrypt.compare(
-      currentPassword,
-      user.password
-    );
-    if (!isValidPassword) {
-      return new Response('Current password is incorrect', { status: 401 });
+    console.log(user.password);
+    if (user.password != null) {
+      const isValidPassword = await bcrypt.compare(
+        currentPassword,
+        user.password
+      );
+      if (!isValidPassword) {
+        return new Response('Current password is incorrect', { status: 401 });
+      }
     }
   }
 

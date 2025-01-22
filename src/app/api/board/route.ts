@@ -16,6 +16,9 @@ export async function GET() {
     include: {
       boards: true,
     },
+    omit: {
+      password: true,
+    },
   });
   if (!user) {
     return new Response('Unauthorized', { status: 401 });
